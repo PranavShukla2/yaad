@@ -1,0 +1,86 @@
+<resources>
+    <!-- Sections -->
+    <string name="section_overdue">Overdue</string>
+    <string name="section_today">Today</string>
+    <string name="empty_today_title">Nothing due today</string>
+    <string name="empty_today_message">Add a reminder with the + button.</string>
+    <string name="empty_upcoming_title">Nothing in the next 30 days</string>
+    <string name="empty_upcoming_message">Upcoming reminders appear here, grouped by day.</string>
+    <string name="select_reminder">Choose a reminder to see its details.</string>
+
+    <!-- Days -->
+    <string name="day_today">Today</string>
+    <string name="day_tomorrow">Tomorrow</string>
+    <string name="day_yesterday">Yesterday</string>
+    <string name="day_and_time">%1$s, %2$s</string>
+    <string name="all_day">All day</string>
+    <string-array name="weekdays">
+        <item>Monday</item><item>Tuesday</item><item>Wednesday</item><item>Thursday</item><item>Friday</item>
+        <item>Saturday</item><item>Sunday</item>
+    </string-array>
+    <string-array name="weekdays_short">
+        <item>Mon</item><item>Tue</item><item>Wed</item><item>Thu</item><item>Fri</item><item>Sat</item><item>Sun</item>
+    </string-array>
+    <string-array name="months_short">
+        <item>Jan</item><item>Feb</item><item>Mar</item><item>Apr</item><item>May</item><item>Jun</item>
+        <item>Jul</item><item>Aug</item><item>Sep</item><item>Oct</item><item>Nov</item><item>Dec</item>
+    </string-array>
+    <string name="date_day_month">%1$d %2$s</string>
+    <string name="date_day_month_year">%1$d %2$s %3$d</string>
+
+    <!-- Repeat -->
+    <string name="repeat_none">Does not repeat</string>
+    <string name="repeat_minutes">Every %1$d min</string>
+    <string name="repeat_hours">Every %1$d h</string>
+    <string name="repeat_daily">Every day</string>
+    <string name="repeat_days">Every %1$d days</string>
+    <string name="repeat_weekly">Every week</string>
+    <string name="repeat_weeks">Every %1$d weeks</string>
+    <string name="repeat_on">%1$s on %2$s</string>
+    <string name="repeat_monthly">Every month</string>
+    <string name="repeat_months">Every %1$d months</string>
+    <string name="repeat_yearly">Every year</string>
+    <string name="repeat_years">Every %1$d years</string>
+    <string name="monthly_day">day %1$d</string>
+    <string name="monthly_last_day">the last day</string>
+    <string name="monthly_nth">the %1$s %2$s</string>
+    <string-array name="ordinals">
+        <item>first</item><item>second</item><item>third</item><item>fourth</item>
+    </string-array>
+    <string name="ordinal_last">last</string>
+    <string name="ends_after">, %1$d times</string>
+    <string name="ends_on">, until %1$s</string>
+
+    <!-- Early alerts and nagging -->
+    <string name="before_minutes">%1$d min before</string>
+    <string name="before_hours">%1$d h before</string>
+    <string name="before_days">%1$d days before</string>
+    <string name="before_day">1 day before</string>
+    <string name="nag_every">Remind every %1$d min until done</string>
+
+    <!-- Actions -->
+    <string name="action_done">Done</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_snooze">Snooze</string>
+    <string name="action_undo">Undo</string>
+    <string name="snooze_10">10 minutes</string>
+    <string name="snooze_60">1 hour</string>
+    <string name="snooze_tomorrow">Tomorrow morning</string>
+    <string name="mark_done">Mark %1$s done</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="back">Back</string>
+
+    <!-- Detail -->
+    <string name="next_due">Next: %1$s</string>
+    <string name="no_more">No more occurrences</string>
+    <string name="checklist">Checklist</string>
+    <string name="history">History</string>
+    <string name="no_history">Nothing done or skipped yet.</string>
+    <string name="status_done_on">Done · due %1$s</string>
+    <string name="status_skipped_on">Skipped · due %1$s</string>
+    <string name="status_snoozed_on">Snoozed · due %1$s</string>
+    <string name="delete_title">Delete this reminder?</string>
+    <string name="delete_message">Its history is deleted too.</string>
+    <string name="cancel">Cancel</string>
+</resources>
