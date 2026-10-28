@@ -12,8 +12,8 @@ Yaad remembers the things that cost money or trouble when forgotten:
 
 Everything stays on the device unless you choose to back it up.
 
-**Status:** Phase 0 (foundation) is done: the app builds and runs on Android, iPad and desktop, with the design
-system and CI in place. Progress by phase is in [docs/PLAN.md § 10](docs/PLAN.md#10-progress); working rules for
+**Status:** Phases 0–1 are done: the app builds and runs on Android, iPad and desktop, and the recurrence engine
+behind every reminder is in place and tested. Progress by phase is in [docs/PLAN.md § 10](docs/PLAN.md#10-progress); working rules for
 contributors and AI assistants are in [CLAUDE.md](CLAUDE.md).
 
 ## Building
