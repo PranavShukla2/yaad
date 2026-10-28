@@ -1,6 +1,11 @@
 package com.pranavshukla.yaad.data
 
+import com.pranavshukla.yaad.core.model.AnnualRate
 import com.pranavshukla.yaad.core.model.Category
+import com.pranavshukla.yaad.core.model.Loan
+import com.pranavshukla.yaad.core.model.LoanKind
+import com.pranavshukla.yaad.core.model.Prepayment
+import com.pranavshukla.yaad.core.model.PrepaymentEffect
 import com.pranavshukla.yaad.core.model.ChecklistItem
 import com.pranavshukla.yaad.core.model.Currency
 import com.pranavshukla.yaad.core.model.Frequency
@@ -18,6 +23,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -53,12 +59,17 @@ class BackupTest {
     )
     private val paid = Occurrence(emi.id, Instant.parse("2026-11-05T03:30:00Z"), OccurrenceStatus.Done(now), emi.amount)
 
-    private class Device(val reminders: ReminderStore, val preferences: PreferenceStore, val backup: Backup)
+    private class Device(val reminders: ReminderStore, val preferences: PreferenceStore, val loans: LoanStore, val backup: Backup)
 
     private fun device(dispatcher: TestDispatcher): Device {
         val driver = testDriver()
-        return Device(ReminderStore(driver, clock, dispatcher), PreferenceStore(driver, dispatcher), Backup(driver, clock))
+        return Device(ReminderStore(driver, clock, dispatcher), PreferenceStore(driver, dispatcher), LoanStore(driver, clock, dispatcher), Backup(driver, clock))
     }
+
+    private val loan = Loan(
+        "home", "HDFC", LoanKind.Home, Money(100_000_000, Currency.INR), AnnualRate(8500), 240, LocalDate(2026, 11, 5),
+        prepayments = listOf(Prepayment(12, Money(10_000_000, Currency.INR), PrepaymentEffect.Emi)),
+    )
 
     private fun Device.fill() {
         reminders.save(emi)
@@ -66,6 +77,7 @@ class BackupTest {
         reminders.record(paid)
         preferences.saveCategory(Category("gym", "Gym", 0xFF0F6A73))
         preferences.putSetting("currency", "INR")
+        loans.save(loan)
     }
 
     @Test
@@ -80,6 +92,7 @@ class BackupTest {
         assertEquals(listOf(paid), new.reminders.allOccurrences().first())
         assertEquals(listOf(Category("gym", "Gym", 0xFF0F6A73)), new.preferences.categories().first())
         assertEquals("INR", new.preferences.setting("currency"))
+        assertEquals(listOf(loan), new.loans.loans().first())
         assertEquals(file, new.backup.export(), "a second export is identical")
     }
 
@@ -90,6 +103,16 @@ class BackupTest {
         target.backup.import(source.backup.export())
         assertEquals(listOf(birthday), target.reminders.reminders().first())
         assertEquals(emptyList(), target.preferences.categories().first())
+        assertEquals(emptyList(), target.loans.loans().first())
+    }
+
+    @Test
+    fun aVersionOneFileStillRestores() = runTest {
+        val v1 = device(StandardTestDispatcher(testScheduler)).apply { reminders.save(birthday) }.backup.export()
+            .replace("\"version\":2", "\"version\":1").replace(",\"loans\":[]", "").replace(",\"loanEvents\":[]", "")
+        val target = device(StandardTestDispatcher(testScheduler))
+        target.backup.import(v1)
+        assertEquals(listOf(birthday), target.reminders.reminders().first())
     }
 
     @Test
@@ -99,7 +122,7 @@ class BackupTest {
         val bad = listOf(
             "not json",
             """{"format":"something-else","version":1}""",
-            good.replace("\"version\":1", "\"version\":99"),
+            good.replace("\"version\":2", "\"version\":99"),
             good.replace("FREQ=YEARLY", "FREQ=SOMETIMES"),
             good.replace("\"Birthday\"", "\"Party\""),
             good.replace(
@@ -117,6 +140,6 @@ class BackupTest {
     @Test
     fun theFileSaysWhatItIs() = runTest {
         val file = device(StandardTestDispatcher(testScheduler)).apply { fill() }.backup.export()
-        assertTrue(file.startsWith("""{"format":"yaad-backup","version":1,"exportedAt":"2026-10-28T10:00:00Z""""), file)
+        assertTrue(file.startsWith("""{"format":"yaad-backup","version":2,"exportedAt":"2026-10-28T10:00:00Z""""), file)
     }
 }
