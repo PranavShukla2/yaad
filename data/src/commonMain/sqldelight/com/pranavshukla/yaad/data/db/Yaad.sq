@@ -1,0 +1,132 @@
+-- Yaad's database. Instants are milliseconds since the epoch (UTC); local date-times are ISO text
+-- ("2026-11-05T09:00"); money is minor units plus an ISO currency code; rules are RuleCodec text.
+
+CREATE TABLE reminder (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    notes TEXT NOT NULL DEFAULT '',
+    type TEXT NOT NULL,
+    category_id TEXT,
+    start_local TEXT NOT NULL,
+    rule TEXT,
+    time_zone_id TEXT,
+    all_day INTEGER AS kotlin.Boolean NOT NULL DEFAULT 0,
+    early_alert_seconds TEXT NOT NULL DEFAULT '',
+    priority TEXT NOT NULL,
+    nag_seconds INTEGER,
+    amount_minor INTEGER,
+    amount_currency TEXT,
+    amount_minor_digits INTEGER,
+    auto_pay INTEGER AS kotlin.Boolean NOT NULL DEFAULT 0,
+    linked_loan_id TEXT,
+    archived INTEGER AS kotlin.Boolean NOT NULL DEFAULT 0,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE TABLE checklist_item (
+    reminder_id TEXT NOT NULL REFERENCES reminder(id) ON DELETE CASCADE,
+    position INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    done INTEGER AS kotlin.Boolean NOT NULL DEFAULT 0,
+    PRIMARY KEY (reminder_id, position)
+);
+
+-- What happened to an occurrence. Occurrences without a row are pending.
+CREATE TABLE occurrence (
+    reminder_id TEXT NOT NULL REFERENCES reminder(id) ON DELETE CASCADE,
+    due_at INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    status_at INTEGER NOT NULL,
+    paid_minor INTEGER,
+    paid_currency TEXT,
+    paid_minor_digits INTEGER,
+    note TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY (reminder_id, due_at)
+);
+
+-- Categories the user made; the built-in ones live in code.
+CREATE TABLE category (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    color INTEGER
+);
+
+CREATE TABLE setting (
+    key TEXT NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+CREATE INDEX reminder_archived ON reminder(archived);
+
+selectReminders:
+SELECT * FROM reminder ORDER BY start_local, title;
+
+selectReminder:
+SELECT * FROM reminder WHERE id = ?;
+
+reminderExists:
+SELECT count(*) > 0 FROM reminder WHERE id = ?;
+
+insertReminder:
+INSERT INTO reminder VALUES ?;
+
+updateReminder:
+UPDATE reminder SET title = :title, notes = :notes, type = :type, category_id = :category_id,
+    start_local = :start_local, rule = :rule, time_zone_id = :time_zone_id, all_day = :all_day,
+    early_alert_seconds = :early_alert_seconds, priority = :priority, nag_seconds = :nag_seconds,
+    amount_minor = :amount_minor, amount_currency = :amount_currency, amount_minor_digits = :amount_minor_digits,
+    auto_pay = :auto_pay, linked_loan_id = :linked_loan_id, archived = :archived, updated_at = :updated_at
+WHERE id = :id;
+
+deleteReminder:
+DELETE FROM reminder WHERE id = ?;
+
+selectChecklist:
+SELECT * FROM checklist_item WHERE reminder_id = ? ORDER BY position;
+
+selectAllChecklists:
+SELECT * FROM checklist_item ORDER BY reminder_id, position;
+
+insertChecklistItem:
+INSERT INTO checklist_item VALUES ?;
+
+deleteChecklist:
+DELETE FROM checklist_item WHERE reminder_id = ?;
+
+selectOccurrences:
+SELECT * FROM occurrence WHERE reminder_id = ? ORDER BY due_at;
+
+selectAllOccurrences:
+SELECT * FROM occurrence ORDER BY reminder_id, due_at;
+
+deleteOccurrence:
+DELETE FROM occurrence WHERE reminder_id = ? AND due_at = ?;
+
+insertOccurrence:
+INSERT INTO occurrence VALUES ?;
+
+selectCategories:
+SELECT * FROM category ORDER BY name;
+
+insertCategory:
+INSERT INTO category VALUES ?;
+
+deleteCategory:
+DELETE FROM category WHERE id = ?;
+
+selectSettings:
+SELECT * FROM setting ORDER BY key;
+
+selectSetting:
+SELECT value FROM setting WHERE key = ?;
+
+putSetting:
+INSERT OR REPLACE INTO setting VALUES (?, ?);
+
+deleteAll {
+    DELETE FROM occurrence;
+    DELETE FROM checklist_item;
+    DELETE FROM reminder;
+    DELETE FROM category;
+    DELETE FROM setting;
+}
