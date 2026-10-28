@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import com.pranavshukla.yaad.core.scheduling.Alert
+import kotlin.time.Instant
 
 /**
  * Alerts as AlarmManager alarms, one per [Alert.id] (the id is the intent's data URI, so setting the same alert
@@ -42,6 +43,13 @@ internal class AndroidAlerts(private val context: Context) : PlatformAlerts {
         forget(id)
     }
 
+    /** When the alarms were last brought in line with the plan; alerts due after it may have been missed. */
+    fun lastSync(): Instant? = ledger.getLong(LastSync, 0L).takeIf { it > 0 }?.let(Instant::fromEpochMilliseconds)
+
+    fun recordSync(at: Instant) {
+        ledger.edit().putLong(LastSync, at.toEpochMilliseconds()).commit()
+    }
+
     /** An alarm went off: it is no longer pending. */
     fun forget(id: String) = saveIds(scheduledIds() - id)
 
@@ -67,6 +75,7 @@ internal class AndroidAlerts(private val context: Context) : PlatformAlerts {
 
     companion object {
         private const val Ids = "ids"
+        private const val LastSync = "lastSync"
         const val ExtraReminderId = "reminderId"
         const val ExtraDue = "due"
         const val ExtraKind = "kind"

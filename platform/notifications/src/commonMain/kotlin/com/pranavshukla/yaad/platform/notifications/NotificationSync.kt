@@ -7,6 +7,7 @@ import com.pranavshukla.yaad.core.scheduling.AlertPlanner
 import com.pranavshukla.yaad.core.scheduling.AlertSync
 import com.pranavshukla.yaad.core.scheduling.PlanSettings
 import kotlinx.datetime.TimeZone
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
 /** The platform's scheduled notifications, addressed by [Alert.id]. */
@@ -28,9 +29,24 @@ class NotificationSync(private val platform: PlatformAlerts, private val setting
     /**
      * When the system may have dropped alarms (reboot) or kept ones the app no longer expects (app update): cancel
      * everything on record, then schedule the whole plan again.
+     *
+     * @return the alerts that should have fired since [lastSync] (at most a day back) and could not, for example
+     * because the phone was off; the caller shows them now.
      */
-    fun resyncFromScratch(reminders: List<Reminder>, history: List<Occurrence>, now: Instant, zone: TimeZone) {
+    fun resyncFromScratch(
+        reminders: List<Reminder>,
+        history: List<Occurrence>,
+        now: Instant,
+        zone: TimeZone,
+        lastSync: Instant? = null,
+    ): List<Alert> {
         platform.scheduledIds().forEach(platform::cancel)
         sync(reminders, history, now, zone)
+        val since = maxOf(lastSync ?: return emptyList(), now - CatchUpWindow)
+        return AlertPlanner.missedBetween(reminders, history, since, now, zone, settings)
+    }
+
+    private companion object {
+        val CatchUpWindow = 24.hours
     }
 }

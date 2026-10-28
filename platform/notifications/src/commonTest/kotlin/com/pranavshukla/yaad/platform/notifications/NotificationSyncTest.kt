@@ -14,7 +14,9 @@ import kotlinx.datetime.TimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.days
+import com.pranavshukla.yaad.core.scheduling.AlertKind
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
 /**
@@ -94,5 +96,23 @@ class NotificationSyncTest {
         sync.sync(listOf(daily), emptyList(), now, zone)
         sync.sync(emptyList(), emptyList(), now, zone)
         assertEquals(emptyMap(), platform.alarms)
+    }
+
+    @Test
+    fun aReminderDueWhileThePhoneWasOffIsShownAtBoot() {
+        sync.sync(listOf(daily), emptyList(), now, zone)
+        platform.reboot()
+        // Off from 15:30 to 19:00 IST: the 17:00 early alert and the 18:00 due alert never fired.
+        val later = now + 3.hours + 30.minutes
+        val missed = sync.resyncFromScratch(listOf(daily), emptyList(), later, zone, lastSync = now)
+        assertEquals(listOf(AlertKind.Due), missed.map { it.kind })
+        assertEquals(Instant.parse("2026-10-28T12:30:00Z"), missed.single().occurrenceDue)
+    }
+
+    @Test
+    fun catchUpLooksBackAtMostADay() {
+        val missed = sync.resyncFromScratch(listOf(daily), emptyList(), now + 5.days, zone, lastSync = now)
+        assertEquals(1, missed.size, "only the occurrence due in the last 24 hours")
+        assertEquals(emptyList(), sync.resyncFromScratch(listOf(daily), emptyList(), now, zone, lastSync = null))
     }
 }

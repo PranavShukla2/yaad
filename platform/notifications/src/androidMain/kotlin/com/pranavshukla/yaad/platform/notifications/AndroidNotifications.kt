@@ -55,11 +55,17 @@ class AndroidNotifications(
         val reminders = store.reminders().first()
         val history = store.allOccurrences().first()
         val zone = TimeZone.currentSystemDefault()
+        val now = clock.now()
         if (fromScratch) {
-            sync.resyncFromScratch(reminders, history, clock.now(), zone)
+            val missed = sync.resyncFromScratch(reminders, history, now, zone, alerts.lastSync())
+            val byId = reminders.associateBy { it.id }
+            missed.forEach { alert ->
+                byId[alert.reminderId]?.let { notifier.show(it, alert.occurrenceDue, alert.kind, alert.occurrenceKey) }
+            }
         } else {
-            sync.sync(reminders, history, clock.now(), zone)
+            sync.sync(reminders, history, now, zone)
         }
+        alerts.recordSync(now)
         alerts.scheduleRefresh()
     }
 
