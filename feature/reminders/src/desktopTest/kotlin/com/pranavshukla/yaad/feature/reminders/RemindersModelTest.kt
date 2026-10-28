@@ -5,7 +5,14 @@ import com.pranavshukla.yaad.core.model.OccurrenceStatus
 import com.pranavshukla.yaad.core.model.Reminder
 import com.pranavshukla.yaad.core.model.Schedule
 import com.pranavshukla.yaad.core.scheduling.AlertAction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
@@ -72,5 +79,15 @@ class RemindersModelTest {
         runCurrent()
         assertEquals(emptyList(), model.state.value.reminders)
         assertEquals(emptyList(), model.state.value.agenda.today)
+    }
+
+    @Test
+    fun manySavesAtOnceAllLand() = runBlocking {
+        // Found by the screenshot test: overlapping saves on several threads broke SQLite transactions.
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val model = RemindersModel(testStore(Dispatchers.Default), scope, TestClock, { zone }, {}, Dispatchers.Default, emptyFlow())
+        repeat(20) { model.save(Reminder(model.newId(), "R$it", Schedule(LocalDateTime(2026, 10, 29, 9, 0)))) }
+        withTimeout(5_000) { model.state.first { it.reminders.size == 20 } }
+        scope.cancel()
     }
 }

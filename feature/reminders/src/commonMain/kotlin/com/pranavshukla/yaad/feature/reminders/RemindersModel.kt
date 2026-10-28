@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
@@ -83,12 +85,15 @@ class RemindersModel(
         store.save(current.copy(checklist = items))
     }
 
+    /** Writes run one at a time: SQLite allows one transaction per connection. */
     private fun write(block: () -> Unit) {
         scope.launch {
-            withContext(io) { block() }
+            writes.withLock { withContext(io) { block() } }
             onChanged()
         }
     }
+
+    private val writes = Mutex()
 
     private companion object {
         val Morning = LocalTime(9, 0)
