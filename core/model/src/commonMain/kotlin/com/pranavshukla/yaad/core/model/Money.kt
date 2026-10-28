@@ -46,6 +46,25 @@ data class Money(val minorUnits: Long, val currency: Currency) : Comparable<Mone
     companion object {
         fun zero(currency: Currency) = Money(0, currency)
 
+        /**
+         * An amount as people type it: "15000", "15,000.5", "-8678.23". Commas and spaces are ignored; at most the
+         * currency's minor digits after the point.
+         */
+        fun parse(text: String, currency: Currency): Money {
+            val clean = text.trim().replace(",", "").replace(" ", "")
+            val negative = clean.startsWith("-")
+            val digits = clean.removePrefix("-")
+            val parts = digits.split('.')
+            require(parts.size in 1..2 && parts[0].isNotEmpty() && parts.all { p -> p.all(Char::isDigit) }) { "Not an amount: '$text'" }
+            val fraction = parts.getOrElse(1) { "" }
+            require(fraction.length <= currency.minorDigits) { "Too many decimals for ${currency.code}: '$text'" }
+            val minor = addExact(
+                multiplyExact(parts[0].toLong(), currency.minorPerMajor),
+                fraction.padEnd(currency.minorDigits, '0').ifEmpty { "0" }.toLong(),
+            )
+            return Money(if (negative) -minor else minor, currency)
+        }
+
         /** [major] whole units and [minor] minor units, e.g. `of(8_678, 23, INR)` is ₹8,678.23. */
         fun of(major: Long, minor: Int, currency: Currency): Money {
             require(minor >= 0 && minor < currency.minorPerMajor) {
