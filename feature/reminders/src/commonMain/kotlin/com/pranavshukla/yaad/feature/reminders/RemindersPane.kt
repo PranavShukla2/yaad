@@ -93,7 +93,7 @@ fun RemindersPane(
     }
 }
 
-/** The scaffold's padding plus the lists' own 16 dp margin. */
+/** The scaffold's padding plus the lists' own 16 dp margin, and room at the bottom for the add button. */
 @Composable
 private fun PaddingValues.plus16(): PaddingValues {
     val direction = LocalLayoutDirection.current
@@ -101,6 +101,6 @@ private fun PaddingValues.plus16(): PaddingValues {
         start = calculateStartPadding(direction) + 16.dp,
         top = calculateTopPadding() + 16.dp,
         end = calculateEndPadding(direction) + 16.dp,
-        bottom = calculateBottomPadding() + 16.dp,
+        bottom = calculateBottomPadding() + 88.dp,
     )
 }
