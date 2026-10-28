@@ -9,6 +9,7 @@ kotlin {
             api(projects.ui.designsystem)
             api(projects.core.scheduling)
             api(projects.data)
+            implementation(libs.compose.ui.backhandler)
         }
         commonTest.dependencies {
             implementation(libs.kotlinx.coroutines.test)

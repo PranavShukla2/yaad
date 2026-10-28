@@ -83,9 +83,11 @@ class RemindersModel(
         store.save(current.copy(checklist = items))
     }
 
-    private fun write(block: () -> Unit) = scope.launch {
-        withContext(io) { block() }
-        onChanged()
+    private fun write(block: () -> Unit) {
+        scope.launch {
+            withContext(io) { block() }
+            onChanged()
+        }
     }
 
     private companion object {
