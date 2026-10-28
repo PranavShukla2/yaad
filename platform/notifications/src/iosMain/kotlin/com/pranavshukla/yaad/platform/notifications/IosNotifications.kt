@@ -101,7 +101,28 @@ class IosNotifications(private val store: ReminderStore, private val clock: Cloc
         sync.sync(reminders, history, clock.now(), TimeZone.currentSystemDefault())
     }
 
-    internal suspend fun onAction(action: AlertAction, reminderId: ReminderId, due: Instant) {
+    /**
+     * Handles a notification action ([actionIdentifier] is an [AlertAction] name) for the notification carrying
+     * [userInfo], then calls [done]. Other identifiers (opening the notification) only call [done].
+     */
+    fun handle(actionIdentifier: String, userInfo: Map<Any?, *>, done: () -> Unit) {
+        val action = runCatching { AlertAction.valueOf(actionIdentifier) }.getOrNull()
+        val reminderId = userInfo[IosAlerts.KeyReminderId] as? String
+        val due = (userInfo[IosAlerts.KeyDue] as? String)?.toLongOrNull()
+        if (action == null || reminderId == null || due == null) {
+            done()
+            return
+        }
+        scope.launch {
+            try {
+                onAction(action, ReminderId(reminderId), Instant.fromEpochMilliseconds(due))
+            } finally {
+                done()
+            }
+        }
+    }
+
+    private suspend fun onAction(action: AlertAction, reminderId: ReminderId, due: Instant) {
         store.record(action.toOccurrence(reminderId, due, clock.now(), TimeZone.currentSystemDefault(), settings.allDayTime))
         center.removeDeliveredNotificationsWithIdentifiers(deliveredIdsFor(Alert(reminderId, due, due, AlertKind.Due)))
         sync()
@@ -141,21 +162,11 @@ class IosNotifications(private val store: ReminderStore, private val clock: Cloc
             didReceiveNotificationResponse: UNNotificationResponse,
             withCompletionHandler: () -> Unit,
         ) {
-            val info = didReceiveNotificationResponse.notification.request.content.userInfo
-            val action = runCatching { AlertAction.valueOf(didReceiveNotificationResponse.actionIdentifier) }.getOrNull()
-            val reminderId = info[IosAlerts.KeyReminderId] as? String
-            val due = (info[IosAlerts.KeyDue] as? String)?.toLongOrNull()
-            if (action == null || reminderId == null || due == null) {
-                withCompletionHandler()
-                return
-            }
-            scope.launch {
-                try {
-                    onAction(action, ReminderId(reminderId), Instant.fromEpochMilliseconds(due))
-                } finally {
-                    withCompletionHandler()
-                }
-            }
+            handle(
+                didReceiveNotificationResponse.actionIdentifier,
+                didReceiveNotificationResponse.notification.request.content.userInfo,
+                withCompletionHandler,
+            )
         }
 
         /** Show reminders as banners even while Yaad is open. */
