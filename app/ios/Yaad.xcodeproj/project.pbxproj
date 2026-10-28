@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A3E6A63BC0A775989EB4A8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 80691E5CCF9EAD360802242E /* Localizable.strings */; };
 		ED85E311D8DDC6E89FBF04A4 /* YaadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CACA282A789FA34E6D2E4484 /* YaadApp.swift */; };
 		FD6DC0FCB8C6342A6532B730 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65394285220F52B3CA89A81D /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -14,6 +15,7 @@
 /* Begin PBXFileReference section */
 		00DF5F707963E5D59EA3B044 /* Yaad.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Yaad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		65394285220F52B3CA89A81D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B392169FB2FD57146AE86980 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B400AEBA6E0F7FEF1CFB6C42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CACA282A789FA34E6D2E4484 /* YaadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaadApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -33,6 +35,7 @@
 				65394285220F52B3CA89A81D /* Assets.xcassets */,
 				B400AEBA6E0F7FEF1CFB6C42 /* Info.plist */,
 				CACA282A789FA34E6D2E4484 /* YaadApp.swift */,
+				80691E5CCF9EAD360802242E /* Localizable.strings */,
 			);
 			path = Yaad;
 			sourceTree = "<group>";
@@ -106,6 +109,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FD6DC0FCB8C6342A6532B730 /* Assets.xcassets in Resources */,
+				1A3E6A63BC0A775989EB4A8F /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +147,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		80691E5CCF9EAD360802242E /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B392169FB2FD57146AE86980 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		1773F9CB7C9D948ED04AF4E9 /* Release */ = {
@@ -286,6 +301,7 @@
 					"$(inherited)",
 					"-framework",
 					YaadShared,
+					"-lsqlite3",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.pranavshukla.yaad;
 				PRODUCT_NAME = Yaad;
@@ -312,6 +328,7 @@
 					"$(inherited)",
 					"-framework",
 					YaadShared,
+					"-lsqlite3",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.pranavshukla.yaad;
 				PRODUCT_NAME = Yaad;

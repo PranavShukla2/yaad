@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import com.pranavshukla.yaad.core.model.Reminder
 import com.pranavshukla.yaad.core.scheduling.Alert
 import kotlin.time.Instant
 
@@ -22,7 +23,7 @@ internal class AndroidAlerts(private val context: Context) : PlatformAlerts {
 
     override fun scheduledIds(): Set<String> = ledger.getStringSet(Ids, emptySet()).orEmpty().toSet()
 
-    override fun schedule(alert: Alert) {
+    override fun schedule(alert: Alert, reminder: Reminder) {
         val intent = intentFor(alert.id)
             .putExtra(ExtraReminderId, alert.reminderId.value)
             .putExtra(ExtraDue, alert.occurrenceDue.toEpochMilliseconds())

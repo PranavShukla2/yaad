@@ -10,12 +10,18 @@ kotlin {
         binaries.framework {
             baseName = "YaadShared"
             isStatic = true
+            // SQLDelight's native driver uses the system SQLite.
+            linkerOpts("-lsqlite3")
         }
     }
 
     sourceSets {
         commonMain.dependencies {
             api(projects.ui.designsystem)
+        }
+        iosMain.dependencies {
+            implementation(projects.data)
+            implementation(projects.platform.notifications)
         }
     }
 }

@@ -1,0 +1,10 @@
+/* Notification text. Keys are read by platform/notifications (IosAlerts.text). */
+"due_at" = "Due %@";
+"due_now" = "Due now, %@";
+"still_due" = "Still due, %@";
+"snoozed" = "Snoozed, due %@";
+"action_done" = "Done";
+"action_snooze" = "Snooze 10 min";
+"action_skip" = "Skip";
+"refill_title" = "Open Yaad to keep reminders coming";
+"refill_body" = "You have more reminders than iPhone and iPad can hold at once.";

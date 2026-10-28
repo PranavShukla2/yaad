@@ -146,6 +146,14 @@ rounded to the paisa each month; the last instalment absorbs the rounding.
   - Notification categories carry the Done / Snooze / Skip actions.
   - Time-sensitive interruption level for money and medicine items (Focus-aware).
 - iPad: same app, adaptive layout; no phone-only assumptions.
+- **Decided in Phase 4:**
+  - Notifications use calendar triggers with UTC date components, so each fires at its planned instant; a time-zone
+    change re-plans floating reminders.
+  - When more than 64 alerts are planned, the earliest 63 are scheduled plus a final "Open Yaad to keep reminders
+    coming" notice, so reminders never stop silently.
+  - iOS keeps pending notifications across reboots and updates, and does not wake the app when one fires, so
+    there is no boot catch-up on iOS. Handling an occurrence clears all of its delivered notifications.
+  - Time-sensitive interruption needs an entitlement from a paid developer account (Phase 12).
 
 ### Shared rules (`core:scheduling`)
 - The schedule is a pure function: from (reminders, completions, now, time zone) to (the list of notifications that
@@ -265,3 +273,4 @@ throughout.
 | 1 | Model and recurrence | Done | `core:model` (schedules, recurrence rules, reminders, occurrences, `Money` in `Long` minor units with overflow checks); `core:recurrence` (occurrences, next after, range) for every rule in § 3.1. 34 fixtures (31st, 29 February, nth and last weekdays, year ends, New York DST gap and overlap, travel) and property tests over 4,000 seeded random rules against a day-by-day oracle, on the JVM and the iOS simulator. |
 | 2 | Storage | Done | SQLDelight schema v1 (reminders, checklists, occurrence history, custom categories, settings) with foreign keys enforced on Android, iOS and desktop; `ReminderStore` and `PreferenceStore` with flows; rules stored as RRULE-style text; migration harness (a schema snapshot and sample rows per version, checked on every build); versioned JSON backup, restored all or nothing. Android 8 ships SQLite 3.18, so no `UPSERT`: saves update or insert in a transaction. |
 | 3 | Scheduling and Android notifications | Done | `core:scheduling` plans early, due, snoozed and nagging alerts with stable ids, finds alerts missed while the phone was off, and diffs against what is scheduled. Android: exact alarms (inexact fallback, explained in the app), channels per category, Done / Snooze / Skip from the lock screen, rescheduling on boot, update, clock, zone and permission changes. Emulator (API 36): on time to within 0.3–1 s, also in Doze; reboot, zone change and clock jump handled; Done stops nagging. Two bugs found on the emulator and fixed with regression tests (sub-millisecond start times; alarms orphaned by app updates). |
+| 4 | iOS / iPad notifications | Done | `UNUserNotificationCenter` scheduler in `platform:notifications` (iosMain): 64-alert rolling window with a refill notice, Done / Snooze / Skip category, re-plans on launch, foreground, significant time change, zone change and background app refresh (`BGAppRefreshTask`). iPad Pro 11-inch simulator (iOS 26): due and nag notifications delivered to the second; Done recorded, nags removed and delivered notifications cleared; exactly 64 pending with the refill notice; pending notifications kept across a reboot. Not verified: tapping an action in the system UI (`simctl` cannot tap; the handler was driven directly), a time-zone change (the simulator follows the Mac's zone), background refresh (iOS decides when), and a physical iPad (needs an Apple Developer account). |
