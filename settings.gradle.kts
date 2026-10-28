@@ -36,3 +36,4 @@ dependencyResolutionManagement {
 }
 include(":ui:designsystem")
 include(":app:shared")
+include(":app:android")
