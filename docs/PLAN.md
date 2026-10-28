@@ -239,8 +239,19 @@ throughout.
 - **Scope:** this is a large feature list. Phases 0–5 give a dependable reminder app to use daily; everything else
   builds on that.
 
+- **Recurrence rules (decided in Phase 1):**
+  - A monthly "day 31" falls on the last day of shorter months and returns to the 31st afterwards (no drift);
+    a yearly 29 February falls on 28 February in common years.
+  - Day rules and longer keep the local wall-clock time: "every day at 9:00" is 9:00 wherever the phone is. Minute
+    and hour rules count elapsed time, so "every 2 hours" stays 2 hours apart through a DST change.
+  - A time skipped by a DST gap (2:30 on a spring-forward night) fires just after the gap; a time that happens twice
+    fires once, at the first.
+  - "Every N weeks" counts weeks from the first occurrence's week, with weeks starting on Monday. The first
+    occurrence is the first date on or after the start that matches the rule.
+
 ## 10. Progress
 
 | # | Phase | Status | Notes |
 |---|---|---|---|
 | 0 | Foundation | Done | KMP project (Android, iOS, desktop), build-logic convention plugins, Material 3 design system with dynamic colour on Android 12+, adaptive navigation (bar below 600 dp, rail above) and list/detail layout, placeholder bell icon, CI. Package and bundle id `com.pranavshukla.yaad`; iOS 16+, Android 8.0+ (API 26). |
+| 1 | Model and recurrence | Done | `core:model` (schedules, recurrence rules, reminders, occurrences, `Money` in `Long` minor units with overflow checks); `core:recurrence` (occurrences, next after, range) for every rule in § 3.1. 34 fixtures (31st, 29 February, nth and last weekdays, year ends, New York DST gap and overlap, travel) and property tests over 4,000 seeded random rules against a day-by-day oracle, on the JVM and the iOS simulator. |
