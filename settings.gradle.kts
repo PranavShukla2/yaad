@@ -34,3 +34,4 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+include(":ui:designsystem")
