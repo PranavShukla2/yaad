@@ -1,0 +1,52 @@
+-- Loans (schema version 2, added by 1.sqm). Money is minor units with the loan's currency; rates are thousandths of
+-- a percent. loan_event.kind is prepay_tenure, prepay_emi, rate_keep_emi or rate_keep_tenure.
+
+CREATE TABLE loan (
+    id TEXT NOT NULL PRIMARY KEY,
+    lender TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    principal_minor INTEGER NOT NULL,
+    currency TEXT NOT NULL,
+    minor_digits INTEGER NOT NULL,
+    rate_thousandths INTEGER NOT NULL,
+    tenure_months INTEGER NOT NULL,
+    first_emi_date TEXT NOT NULL,
+    emi_minor INTEGER,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE TABLE loan_event (
+    loan_id TEXT NOT NULL REFERENCES loan(id) ON DELETE CASCADE,
+    position INTEGER NOT NULL,
+    after_instalment INTEGER NOT NULL,
+    kind TEXT NOT NULL,
+    amount_minor INTEGER,
+    rate_thousandths INTEGER,
+    PRIMARY KEY (loan_id, position)
+);
+
+selectLoans:
+SELECT * FROM loan ORDER BY lender, id;
+
+selectLoan:
+SELECT * FROM loan WHERE id = ?;
+
+selectAllLoanEvents:
+SELECT * FROM loan_event ORDER BY loan_id, position;
+
+deleteLoan:
+DELETE FROM loan WHERE id = ?;
+
+insertLoan:
+INSERT INTO loan VALUES ?;
+
+deleteLoanEvents:
+DELETE FROM loan_event WHERE loan_id = ?;
+
+insertLoanEvent:
+INSERT INTO loan_event VALUES ?;
+
+deleteAllLoans {
+    DELETE FROM loan_event;
+    DELETE FROM loan;
+}

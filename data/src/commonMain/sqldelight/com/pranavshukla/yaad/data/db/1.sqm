@@ -1,0 +1,24 @@
+-- Version 1 to 2: loans and their prepayments and rate changes.
+CREATE TABLE loan (
+    id TEXT NOT NULL PRIMARY KEY,
+    lender TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    principal_minor INTEGER NOT NULL,
+    currency TEXT NOT NULL,
+    minor_digits INTEGER NOT NULL,
+    rate_thousandths INTEGER NOT NULL,
+    tenure_months INTEGER NOT NULL,
+    first_emi_date TEXT NOT NULL,
+    emi_minor INTEGER,
+    updated_at INTEGER NOT NULL
+);
+
+CREATE TABLE loan_event (
+    loan_id TEXT NOT NULL REFERENCES loan(id) ON DELETE CASCADE,
+    position INTEGER NOT NULL,
+    after_instalment INTEGER NOT NULL,
+    kind TEXT NOT NULL,
+    amount_minor INTEGER,
+    rate_thousandths INTEGER,
+    PRIMARY KEY (loan_id, position)
+);
