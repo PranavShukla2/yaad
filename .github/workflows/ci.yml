@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "phase/**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # Every push: all JVM tests, Android lint, and the Android and desktop builds.
+    # Pull requests are covered by the push run on their head commit.
+    if: github.event_name != 'pull_request'
+    name: Tests, lint, Android and desktop
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Check
+        run: ./gradlew check :app:android:assembleDebug :app:desktop:jar
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports
+          path: |
+            **/build/reports/
+            **/build/test-results/
+
+  ios:
+    # macOS minutes cost ten times Linux minutes on private repositories, so iOS builds run for pull requests,
+    # main and manual runs rather than for every push to a phase branch.
+    if: github.event_name != 'push' || github.ref == 'refs/heads/main'
+    name: iOS
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Kotlin tests on the iOS simulator
+        run: ./gradlew iosSimulatorArm64Test
+      - name: Build the app for the simulator
+        run: >
+          xcodebuild -project app/ios/Yaad.xcodeproj -scheme Yaad -configuration Debug
+          -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO build
