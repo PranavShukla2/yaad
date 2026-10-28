@@ -1,0 +1,40 @@
+# Gradle and Kotlin
+.gradle/
+build/
+.kotlin/
+local.properties
+*.hprof
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.fleet/
+
+# Android
+*.apk
+*.aab
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Xcode and iOS
+xcuserdata/
+DerivedData/
+*.xcuserstate
+Pods/
+iosApp/build/
+
+# macOS
+.DS_Store
+
+# Secrets: never commit these
+*.jks
+*.keystore
+keystore.properties
+google-services.json
+GoogleService-Info.plist
+.env
+*.p8
+*.p12
+*.mobileprovision
