@@ -140,7 +140,7 @@ fun ReminderEditor(
             Label(Res.string.field_category)
             Chips(listOf<BuiltInCategory?>(null) + BuiltInCategory.entries, BuiltInCategory.entries.firstOrNull { it.id == state.categoryId }, {
                 state = state.copy(categoryId = it?.id)
-            }) { if (it == null) stringResource(Res.string.off) else categoryLabel(it) }
+            }) { if (it == null) stringResource(Res.string.category_none) else categoryLabel(it) }
 
             Label(Res.string.field_priority)
             Chips(Priority.entries, state.priority, { state = state.copy(priority = it) }) {
