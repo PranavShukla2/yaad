@@ -50,3 +50,6 @@ data class Reminder(
         require(nagInterval == null || nagInterval.isPositive()) { "Nag interval must be positive" }
     }
 }
+
+/** A category the user made. [color] is ARGB, or null for the theme's default. */
+data class Category(val id: String, val name: String, val color: Long? = null)
