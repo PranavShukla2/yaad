@@ -14,8 +14,9 @@ Everything stays on the device unless you choose to back it up.
 
 **Status:** Phases 0–4 are done: the recurrence engine, the on-device database (with migrations and backup) and
 reliable notifications on Android (exact alarms, Doze, reboot, time changes) and iPad (a rolling 64-notification
-window), with Done / Snooze / Skip, are in place and tested. The reminder screens come in Phase 5. Progress by phase is in [docs/PLAN.md § 10](docs/PLAN.md#10-progress); working rules for
-contributors and AI assistants are in [CLAUDE.md](CLAUDE.md).
+window), with Done / Snooze / Skip, are in place and tested. The reminder screens come in Phase 5. Progress by phase
+is in [docs/PLAN.md § 10](docs/PLAN.md#10-progress); working rules for contributors and AI assistants are in
+[CLAUDE.md](CLAUDE.md).
 
 ## Building
 
