@@ -4,6 +4,7 @@
 
     <!-- Reminders and amounts stay on the device: Android's automatic backup is off; backup is an explicit export. -->
     <application
+        android:name=".YaadApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
