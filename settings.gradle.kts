@@ -35,3 +35,4 @@ dependencyResolutionManagement {
     }
 }
 include(":ui:designsystem")
+include(":app:shared")
