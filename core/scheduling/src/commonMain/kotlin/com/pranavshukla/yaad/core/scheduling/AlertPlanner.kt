@@ -70,6 +70,22 @@ object AlertPlanner {
             .toList()
     }
 
+    /**
+     * The alerts that should have fired in (from, to], for example while the phone was off: the latest one for each
+     * occurrence still pending, so it can be shown now.
+     */
+    fun missedBetween(
+        reminders: List<Reminder>,
+        history: List<Occurrence>,
+        from: Instant,
+        to: Instant,
+        deviceZone: TimeZone,
+        settings: PlanSettings = PlanSettings(),
+    ): List<Alert> =
+        plan(reminders, history, from, deviceZone, settings.copy(horizon = to - from, limit = Int.MAX_VALUE))
+            .groupBy { it.occurrenceKey }
+            .map { (_, alerts) -> alerts.last() }
+
     private fun alertsFor(
         reminder: Reminder,
         due: Instant,

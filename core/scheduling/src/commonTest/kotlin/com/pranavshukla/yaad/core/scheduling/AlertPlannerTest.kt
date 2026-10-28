@@ -190,4 +190,17 @@ class AlertPlannerTest {
         val due = Instant.fromEpochMilliseconds(plan(listOf(r)).first().occurrenceDue.toEpochMilliseconds())
         assertEquals(emptyList(), plan(listOf(r), listOf(Occurrence(r.id, due, OccurrenceStatus.Done(now)))))
     }
+
+    @Test
+    fun alertsMissedWhileThePhoneWasOffAreFoundOncePerOccurrence() {
+        // Due 16:00 IST (10:30 UTC), nagging every 30 minutes; the phone is off from 15:30 to 17:30 IST.
+        val emi = reminder("emi", ist(28, 16), early = listOf(1.hours), nag = 30.minutes)
+        val call = reminder("call", ist(28, 17))
+        val missed = AlertPlanner.missedBetween(listOf(emi, call), emptyList(), now, now + 2.hours, kolkata)
+        assertEquals(listOf("emi Nag 2026-10-28T12:00:00Z", "call Due 2026-10-28T11:30:00Z").sorted(), missed.summary().sorted())
+
+        val paid = listOf(Occurrence(emi.id, instant("2026-10-28T10:30:00Z"), OccurrenceStatus.Done(now)))
+        assertEquals(listOf("call"), AlertPlanner.missedBetween(listOf(emi, call), paid, now, now + 2.hours, kolkata)
+            .map { it.reminderId.value })
+    }
 }
