@@ -30,6 +30,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - name: Check
         run: ./gradlew check :app:android:assembleDebug :app:desktop:jar
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshots
+          path: app/shared/build/screenshots/
+          if-no-files-found: ignore
       - name: Upload reports
         if: failure()
         uses: actions/upload-artifact@v7
