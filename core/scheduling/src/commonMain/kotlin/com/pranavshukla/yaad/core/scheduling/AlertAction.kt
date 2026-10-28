@@ -1,4 +1,4 @@
-package com.pranavshukla.yaad.platform.notifications
+package com.pranavshukla.yaad.core.scheduling
 
 import com.pranavshukla.yaad.core.model.Occurrence
 import com.pranavshukla.yaad.core.model.OccurrenceStatus

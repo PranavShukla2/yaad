@@ -32,20 +32,24 @@ fun ItemCard(
     modifier: Modifier = Modifier,
     supportingText: String? = null,
     amountText: String? = null,
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     Card(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 72.dp)
-            .semantics(mergeDescendants = true) {},
+            .heightIn(min = 72.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // The text reads as one item; a trailing button stays separately focusable.
+            Column(
+                modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {},
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
@@ -74,6 +78,10 @@ fun ItemCard(
             if (amountText != null) {
                 Spacer(Modifier.width(12.dp))
                 AmountText(amountText, style = MaterialTheme.typography.titleMedium)
+            }
+            if (trailing != null) {
+                Spacer(Modifier.width(4.dp))
+                trailing()
             }
         }
     }

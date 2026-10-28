@@ -18,6 +18,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.ui.designsystem)
+            api(projects.feature.reminders)
+        }
+        named("desktopTest").dependencies {
+            implementation(libs.sqldelight.sqlite.driver)
+            implementation(projects.platform.notifications)
         }
         iosMain.dependencies {
             implementation(projects.data)

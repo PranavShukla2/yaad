@@ -13,6 +13,7 @@ kotlin {
 
 dependencies {
     implementation(projects.app.shared)
+    implementation(projects.data)
     implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutines.swing)
 }
