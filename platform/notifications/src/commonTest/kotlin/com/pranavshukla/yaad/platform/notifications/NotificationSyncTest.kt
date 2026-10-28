@@ -29,7 +29,9 @@ private class FakePlatform : PlatformAlerts {
     var scheduleCalls = 0
 
     override fun scheduledIds() = ledger.toSet()
-    override fun schedule(alert: Alert) {
+    var refillAt: Instant? = null
+
+    override fun schedule(alert: Alert, reminder: Reminder) {
         scheduleCalls++
         alarms[alert.id] = alert
         ledger += alert.id
@@ -37,6 +39,10 @@ private class FakePlatform : PlatformAlerts {
     override fun cancel(id: String) {
         alarms.remove(id)
         ledger -= id
+    }
+
+    override fun setRefillNotice(at: Instant?) {
+        refillAt = at
     }
 
     fun reboot() = alarms.clear()
@@ -114,5 +120,17 @@ class NotificationSyncTest {
         val missed = sync.resyncFromScratch(listOf(daily), emptyList(), now + 5.days, zone, lastSync = now)
         assertEquals(1, missed.size, "only the occurrence due in the last 24 hours")
         assertEquals(emptyList(), sync.resyncFromScratch(listOf(daily), emptyList(), now, zone, lastSync = null))
+    }
+
+    @Test
+    fun aSmallPlatformWindowKeepsTheEarliestAndSetsARefillNotice() {
+        val ios = FakePlatform()
+        val hourly = daily.copy(schedule = daily.schedule.copy(rule = RecurrenceRule(Frequency.Hourly(1))), earlyAlerts = emptyList())
+        NotificationSync(ios, PlanSettings(horizon = 3.days), capacity = 5).sync(listOf(hourly), emptyList(), now, zone)
+        assertEquals(4, ios.alarms.size)
+        assertEquals(Instant.parse("2026-10-28T15:31:00Z"), ios.refillAt)
+
+        NotificationSync(ios, PlanSettings(horizon = 3.days), capacity = 5).sync(emptyList(), emptyList(), now, zone)
+        assertEquals(null, ios.refillAt, "nothing left to refill")
     }
 }
