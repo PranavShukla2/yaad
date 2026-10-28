@@ -1,5 +1,6 @@
 package com.pranavshukla.yaad.app
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -38,9 +39,12 @@ private enum class Tab(val label: StringResource, val emptyTitle: StringResource
     Settings(Res.string.tab_settings, Res.string.empty_settings_title, Res.string.empty_settings_message),
 }
 
-/** The Yaad app, shared by Android, iOS and desktop. */
+/**
+ * The Yaad app, shared by Android, iOS and desktop. [alertAccess] is what the platform currently allows; when
+ * something is missing, Today explains it and [onFixAlertAccess] takes the user to fix it.
+ */
 @Composable
-fun App() {
+fun App(alertAccess: AlertAccess = AlertAccess(), onFixAlertAccess: () -> Unit = {}) {
     YaadTheme {
         var selected by rememberSaveable { mutableIntStateOf(0) }
         val tabs = Tab.entries
@@ -56,11 +60,10 @@ fun App() {
             },
         ) { padding ->
             val tab = tabs[selected]
-            EmptyState(
-                title = stringResource(tab.emptyTitle),
-                message = stringResource(tab.emptyMessage),
-                modifier = Modifier.padding(padding),
-            )
+            Column(Modifier.padding(padding)) {
+                if (tab == Tab.Today) AlertAccessBanner(alertAccess, onFixAlertAccess)
+                EmptyState(title = stringResource(tab.emptyTitle), message = stringResource(tab.emptyMessage))
+            }
         }
     }
 }

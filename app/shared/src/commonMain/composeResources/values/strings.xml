@@ -13,4 +13,8 @@
     <string name="empty_money_message">Loans, bills, cards and subscriptions will show what is due and when.</string>
     <string name="empty_settings_title">Settings</string>
     <string name="empty_settings_message">Default times, quiet hours and currency will live here.</string>
+    <string name="access_notifications_off">Notifications are off, so Yaad cannot remind you.</string>
+    <string name="access_turn_on">Turn on</string>
+    <string name="access_exact_denied">Reminders may arrive a few minutes late. Allow exact alarms for on-time alerts.</string>
+    <string name="access_allow">Allow</string>
 </resources>

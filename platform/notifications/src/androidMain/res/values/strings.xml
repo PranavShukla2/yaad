@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_general">Reminders</string>
+    <string name="channel_money">Money</string>
+    <string name="channel_health">Health</string>
+    <string name="channel_personal">Personal</string>
+    <string name="channel_work">Work</string>
+    <string name="channel_home">Home</string>
+    <string name="channel_vehicle">Vehicle</string>
+    <string name="due_at">Due %1$s</string>
+    <string name="due_now">Due now, %1$s</string>
+    <string name="still_due">Still due, %1$s</string>
+    <string name="snoozed">Snoozed, due %1$s</string>
+    <string name="action_done">Done</string>
+    <string name="action_snooze">Snooze 10 min</string>
+    <string name="action_skip">Skip</string>
+</resources>

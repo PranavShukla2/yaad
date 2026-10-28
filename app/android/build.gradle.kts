@@ -41,6 +41,8 @@ kotlin {
 
 dependencies {
     implementation(projects.app.shared)
+    implementation(projects.data)
+    implementation(projects.platform.notifications)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
 }

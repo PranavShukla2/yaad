@@ -125,6 +125,14 @@ rounded to the paisa each month; the last instalment absorbs the rounding.
 - **Delivery:**
   - Notification channels per category, so users can set each one's sound and importance.
   - Actions run through a BroadcastReceiver and update the database without opening the app.
+- **Decided in Phase 3:**
+  - Yaad does not use `USE_EXACT_ALARM` (Play reserves it for alarm-clock and calendar apps). Without
+    `SCHEDULE_EXACT_ALARM`, Today shows "Reminders may arrive a few minutes late" with a button to allow it.
+  - Alerts are planned 10 days ahead (at most 400 alarms; Android allows 500) and re-planned after every alert,
+    action and change, on boot, app update, clock and time-zone changes, and twice a day.
+  - A reminder that came due while the phone was off is shown as soon as Android delivers the boot broadcast
+    (looking back at most 24 hours). On a busy emulator that broadcast took up to 4.5 minutes.
+  - Each occurrence has one notification: its early, due and nag alerts replace each other.
 - **OEM battery savers** (Xiaomi, Oppo, Vivo, Samsung): detect them and guide the user to "no restrictions"; test on
   at least one aggressive OEM device.
 
@@ -256,3 +264,4 @@ throughout.
 | 0 | Foundation | Done | KMP project (Android, iOS, desktop), build-logic convention plugins, Material 3 design system with dynamic colour on Android 12+, adaptive navigation (bar below 600 dp, rail above) and list/detail layout, placeholder bell icon, CI. Package and bundle id `com.pranavshukla.yaad`; iOS 16+, Android 8.0+ (API 26). |
 | 1 | Model and recurrence | Done | `core:model` (schedules, recurrence rules, reminders, occurrences, `Money` in `Long` minor units with overflow checks); `core:recurrence` (occurrences, next after, range) for every rule in § 3.1. 34 fixtures (31st, 29 February, nth and last weekdays, year ends, New York DST gap and overlap, travel) and property tests over 4,000 seeded random rules against a day-by-day oracle, on the JVM and the iOS simulator. |
 | 2 | Storage | Done | SQLDelight schema v1 (reminders, checklists, occurrence history, custom categories, settings) with foreign keys enforced on Android, iOS and desktop; `ReminderStore` and `PreferenceStore` with flows; rules stored as RRULE-style text; migration harness (a schema snapshot and sample rows per version, checked on every build); versioned JSON backup, restored all or nothing. Android 8 ships SQLite 3.18, so no `UPSERT`: saves update or insert in a transaction. |
+| 3 | Scheduling and Android notifications | Done | `core:scheduling` plans early, due, snoozed and nagging alerts with stable ids, finds alerts missed while the phone was off, and diffs against what is scheduled. Android: exact alarms (inexact fallback, explained in the app), channels per category, Done / Snooze / Skip from the lock screen, rescheduling on boot, update, clock, zone and permission changes. Emulator (API 36): on time to within 0.3–1 s, also in Doze; reboot, zone change and clock jump handled; Done stops nagging. Two bugs found on the emulator and fixed with regression tests (sub-millisecond start times; alarms orphaned by app updates). |
