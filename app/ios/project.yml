@@ -1,0 +1,75 @@
+# Source of Yaad.xcodeproj. After editing, regenerate with:  cd app/ios && xcodegen generate
+name: Yaad
+options:
+  bundleIdPrefix: com.pranavshukla
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+targets:
+  Yaad:
+    type: application
+    platform: iOS
+    sources:
+      - path: Yaad
+    info:
+      path: Yaad/Info.plist
+      properties:
+        CFBundleDisplayName: Yaad
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        ITSAppUsesNonExemptEncryption: false
+        CADisableMinimumFrameDurationOnPhone: true
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        # Every orientation, and not full-screen only, so the iPad app works in Split View and Slide Over.
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIRequiresFullScreen: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pranavshukla.yaad
+        PRODUCT_NAME: Yaad
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+        # The Kotlin framework built by Gradle (see the pre-build script below).
+        FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS: [$(inherited), -framework, YaadShared]
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        # Kotlin builds iosSimulatorArm64 only: simulators on Apple-silicon Macs.
+        EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64
+    preBuildScripts:
+      - name: Build Kotlin framework
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "YES" = "$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED" ]; then
+            echo "Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \"YES\""
+            exit 0
+          fi
+          cd "$SRCROOT/../.."
+          ./gradlew :app:shared:embedAndSignAppleFrameworkForXcode
+schemes:
+  Yaad:
+    build:
+      targets:
+        Yaad: all
+    run:
+      config: Debug
+    archive:
+      config: Release
