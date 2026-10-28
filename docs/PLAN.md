@@ -238,3 +238,9 @@ throughout.
   given, and labels its own figures "estimated".
 - **Scope:** this is a large feature list. Phases 0–5 give a dependable reminder app to use daily; everything else
   builds on that.
+
+## 10. Progress
+
+| # | Phase | Status | Notes |
+|---|---|---|---|
+| 0 | Foundation | Done | KMP project (Android, iOS, desktop), build-logic convention plugins, Material 3 design system with dynamic colour on Android 12+, adaptive navigation (bar below 600 dp, rail above) and list/detail layout, placeholder bell icon, CI. Package and bundle id `com.pranavshukla.yaad`; iOS 16+, Android 8.0+ (API 26). |

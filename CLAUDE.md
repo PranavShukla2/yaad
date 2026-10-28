@@ -79,10 +79,11 @@ Everything works offline and stays on the device; backup is opt-in.
 - Light and dark themes; every screen supports TalkBack / VoiceOver and font scaling to 200%.
 - English first; strings in resources so Hindi and other languages can be added (Phase 9).
 
-## Commands (fill in as they become real)
+## Commands
 - `./gradlew check`: all tests and lint
 - `./gradlew :app:android:installDebug`: install on a connected device or emulator
-- iOS / iPad: open `app/ios/Yaad.xcodeproj` in Xcode and run on an iPad simulator
+- iOS / iPad: open `app/ios/Yaad.xcodeproj` in Xcode and run on an iPad simulator (after editing
+  `app/ios/project.yml`, regenerate it with `xcodegen generate` in `app/ios`)
 - `./gradlew :app:desktop:run`: quick desktop preview (development only)
 
 ## When unsure
