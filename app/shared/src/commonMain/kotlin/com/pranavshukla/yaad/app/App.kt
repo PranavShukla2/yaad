@@ -1,12 +1,16 @@
 package com.pranavshukla.yaad.app
 
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -24,7 +28,13 @@ import com.pranavshukla.yaad.app.resources.tab_money
 import com.pranavshukla.yaad.app.resources.tab_settings
 import com.pranavshukla.yaad.app.resources.tab_today
 import com.pranavshukla.yaad.app.resources.tab_upcoming
+import com.pranavshukla.yaad.feature.reminders.AgendaTab
+import com.pranavshukla.yaad.feature.reminders.EditorState
+import com.pranavshukla.yaad.feature.reminders.Pane
+import com.pranavshukla.yaad.feature.reminders.RemindersModel
+import com.pranavshukla.yaad.feature.reminders.RemindersPane
 import com.pranavshukla.yaad.ui.designsystem.YaadTheme
+import com.pranavshukla.yaad.ui.designsystem.adaptive.WidthClass
 import com.pranavshukla.yaad.ui.designsystem.adaptive.NavItem
 import com.pranavshukla.yaad.ui.designsystem.adaptive.YaadNavigationScaffold
 import com.pranavshukla.yaad.ui.designsystem.components.EmptyState
@@ -44,25 +54,49 @@ private enum class Tab(val label: StringResource, val emptyTitle: StringResource
  * something is missing, Today explains it and [onFixAlertAccess] takes the user to fix it.
  */
 @Composable
-fun App(alertAccess: AlertAccess = AlertAccess(), onFixAlertAccess: () -> Unit = {}) {
+fun App(reminders: RemindersModel, alertAccess: AlertAccess = AlertAccess(), onFixAlertAccess: () -> Unit = {}) {
     YaadTheme {
         var selected by rememberSaveable { mutableIntStateOf(0) }
+        var pane by remember { mutableStateOf<Pane>(Pane.None) }
         val tabs = Tab.entries
         val icons = listOf(YaadIcons.Today, YaadIcons.Upcoming, YaadIcons.Money, YaadIcons.Settings)
-        YaadNavigationScaffold(
-            items = tabs.mapIndexed { i, tab -> NavItem(stringResource(tab.label), icons[i]) },
-            selectedIndex = selected,
-            onSelect = { selected = it },
-            floatingAction = {
-                FloatingActionButton(onClick = { /* The editor arrives in Phase 5. */ }) {
-                    Icon(YaadIcons.Add, contentDescription = stringResource(Res.string.action_add))
+        BoxWithConstraints {
+            val twoPane = WidthClass.of(maxWidth).isTwoPane
+            YaadNavigationScaffold(
+                items = tabs.mapIndexed { i, tab -> NavItem(stringResource(tab.label), icons[i]) },
+                selectedIndex = selected,
+                onSelect = { selected = it; pane = Pane.None },
+                floatingAction = if (twoPane || pane == Pane.None) {
+                    {
+                        FloatingActionButton(onClick = {
+                            val state = reminders.state.value
+                            if (tabs[selected] != Tab.Upcoming) selected = Tab.Today.ordinal
+                            pane = Pane.Editor(EditorState.new(reminders.newId(), state.now, state.zone))
+                        }) {
+                            Icon(YaadIcons.Add, contentDescription = stringResource(Res.string.action_add))
+                        }
+                    }
+                } else {
+                    null
+                },
+            ) { padding ->
+                when (val tab = tabs[selected]) {
+                    Tab.Today, Tab.Upcoming -> Column(Modifier.padding(top = padding.calculateTopPadding())) {
+                        if (tab == Tab.Today && pane == Pane.None) AlertAccessBanner(alertAccess, onFixAlertAccess)
+                        RemindersPane(
+                            tab = if (tab == Tab.Today) AgendaTab.Today else AgendaTab.Upcoming,
+                            model = reminders,
+                            pane = pane,
+                            onPane = { pane = it },
+                            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding()),
+                        )
+                    }
+                    else -> EmptyState(
+                        title = stringResource(tab.emptyTitle),
+                        message = stringResource(tab.emptyMessage),
+                        modifier = Modifier.padding(padding),
+                    )
                 }
-            },
-        ) { padding ->
-            val tab = tabs[selected]
-            Column(Modifier.padding(padding)) {
-                if (tab == Tab.Today) AlertAccessBanner(alertAccess, onFixAlertAccess)
-                EmptyState(title = stringResource(tab.emptyTitle), message = stringResource(tab.emptyMessage))
             }
         }
     }

@@ -11,7 +11,7 @@ import kotlin.test.Test
 class AppTest {
     @Test
     fun opensOnTodayAndSwitchesTabs() = runComposeUiTest {
-        setContent { App() }
+        setContent { App(testModel()) }
         onNodeWithText("Nothing due today").assertExists()
         onNodeWithContentDescription("Add reminder").assertExists()
 

@@ -7,6 +7,7 @@ import com.pranavshukla.yaad.core.model.ReminderId
 import com.pranavshukla.yaad.core.model.Schedule
 import com.pranavshukla.yaad.data.DatabaseFactory
 import com.pranavshukla.yaad.data.ReminderStore
+import com.pranavshukla.yaad.feature.reminders.RemindersModel
 import com.pranavshukla.yaad.platform.notifications.IosNotifications
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.first
@@ -26,6 +27,9 @@ import kotlin.time.Duration.Companion.seconds
 object YaadIos {
     internal val store by lazy { ReminderStore(DatabaseFactory().driver()) }
     val notifications by lazy { IosNotifications(store) }
+
+    /** The reminder screens' state; every change re-plans the notifications. */
+    internal val reminders by lazy { RemindersModel(store, MainScope(), onChanged = { notifications.requestSync() }) }
 
     /** At launch. [provisional] (debug only) skips the permission prompt, for automated simulator checks. */
     fun start(provisional: Boolean = false) = notifications.start(provisional)
