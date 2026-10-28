@@ -180,4 +180,14 @@ class AlertPlannerTest {
         val history = listOf(Occurrence(r.id, instant("2026-10-28T09:30:00Z"), OccurrenceStatus.Snoozed(now + 5.minutes)))
         assertEquals(Snoozed, plan(listOf(r), history).single().kind)
     }
+
+    @Test
+    fun historyReadBackAtMillisecondPrecisionStillMatches() {
+        // Found on the emulator: a start with sub-millisecond digits gave occurrences that never matched their stored
+        // (millisecond) record, so "Done" did not stop the nagging.
+        val start = LocalDateTime(2026, 10, 28, 15, 29, 50, 686_123_456)
+        val r = reminder("pill", start, nag = 1.minutes)
+        val due = Instant.fromEpochMilliseconds(plan(listOf(r)).first().occurrenceDue.toEpochMilliseconds())
+        assertEquals(emptyList(), plan(listOf(r), listOf(Occurrence(r.id, due, OccurrenceStatus.Done(now)))))
+    }
 }

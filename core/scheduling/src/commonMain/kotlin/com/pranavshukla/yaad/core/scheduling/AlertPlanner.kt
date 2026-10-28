@@ -50,7 +50,8 @@ object AlertPlanner {
         deviceZone: TimeZone,
         settings: PlanSettings = PlanSettings(),
     ): List<Alert> {
-        val statuses = history.associate { (it.reminderId to it.due) to it.status }
+        // History is stored to the millisecond, so match occurrences at that precision.
+        val statuses = history.associate { (it.reminderId to it.due.toEpochMilliseconds()) to it.status }
         val until = now + settings.horizon
         return reminders.asSequence()
             .filter { !it.archived }
@@ -58,7 +59,7 @@ object AlertPlanner {
                 val zone = reminder.schedule.zoneOr(deviceZone)
                 // Look back far enough to keep nagging about recent missed occurrences.
                 reminder.schedule.occurrencesBetween(now - NagWindow - 1.days, until, zone).asSequence().flatMap { due ->
-                    val status = statuses[reminder.id to due] ?: OccurrenceStatus.Pending
+                    val status = statuses[reminder.id to due.toEpochMilliseconds()] ?: OccurrenceStatus.Pending
                     alertsFor(reminder, due, status, zone, settings)
                 }
             }
