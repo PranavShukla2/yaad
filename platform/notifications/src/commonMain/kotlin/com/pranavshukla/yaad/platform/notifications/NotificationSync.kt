@@ -14,9 +14,6 @@ interface PlatformAlerts {
     fun scheduledIds(): Set<String>
     fun schedule(alert: Alert)
     fun cancel(id: String)
-
-    /** Forget the record of what was scheduled, after the system dropped it all (a reboot). */
-    fun forgetAll()
 }
 
 /** Brings the platform's notifications in line with the plan, adding only what is missing. */
@@ -28,9 +25,12 @@ class NotificationSync(private val platform: PlatformAlerts, private val setting
         diff.toSchedule.forEach(platform::schedule)
     }
 
-    /** After a reboot or app update: schedule everything again. Re-adding an existing alert replaces it. */
+    /**
+     * When the system may have dropped alarms (reboot) or kept ones the app no longer expects (app update): cancel
+     * everything on record, then schedule the whole plan again.
+     */
     fun resyncFromScratch(reminders: List<Reminder>, history: List<Occurrence>, now: Instant, zone: TimeZone) {
-        platform.forgetAll()
+        platform.scheduledIds().forEach(platform::cancel)
         sync(reminders, history, now, zone)
     }
 }

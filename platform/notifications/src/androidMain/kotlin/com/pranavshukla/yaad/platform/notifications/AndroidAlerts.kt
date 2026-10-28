@@ -42,8 +42,6 @@ internal class AndroidAlerts(private val context: Context) : PlatformAlerts {
         forget(id)
     }
 
-    override fun forgetAll() = saveIds(emptySet())
-
     /** An alarm went off: it is no longer pending. */
     fun forget(id: String) = saveIds(scheduledIds() - id)
 

@@ -17,20 +17,27 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
-/** Records what the platform was asked to do, like AlarmManager or UNUserNotificationCenter would. */
+/**
+ * Like Android: [alarms] is what the system holds (it survives app updates but not reboots); [ledger] is the app's
+ * own record of what it scheduled.
+ */
 private class FakePlatform : PlatformAlerts {
-    val pending = mutableMapOf<String, Alert>()
+    val alarms = mutableMapOf<String, Alert>()
+    val ledger = mutableSetOf<String>()
     var scheduleCalls = 0
 
-    override fun scheduledIds() = pending.keys.toSet()
+    override fun scheduledIds() = ledger.toSet()
     override fun schedule(alert: Alert) {
         scheduleCalls++
-        pending[alert.id] = alert
+        alarms[alert.id] = alert
+        ledger += alert.id
     }
     override fun cancel(id: String) {
-        pending.remove(id)
+        alarms.remove(id)
+        ledger -= id
     }
-    override fun forgetAll() = pending.clear()
+
+    fun reboot() = alarms.clear()
 }
 
 class NotificationSyncTest {
@@ -48,7 +55,7 @@ class NotificationSyncTest {
     @Test
     fun schedulesThePlanOnce() {
         sync.sync(listOf(daily), emptyList(), now, zone)
-        assertEquals(6, platform.pending.size, "3 days of an early and a due alert")
+        assertEquals(6, platform.alarms.size, "3 days of an early and a due alert")
         sync.sync(listOf(daily), emptyList(), now, zone)
         assertEquals(6, platform.scheduleCalls, "a second sync schedules nothing new")
     }
@@ -58,23 +65,34 @@ class NotificationSyncTest {
         sync.sync(listOf(daily), emptyList(), now, zone)
         val done = Occurrence(daily.id, Instant.parse("2026-10-28T12:30:00Z"), OccurrenceStatus.Done(now))
         sync.sync(listOf(daily), listOf(done), now, zone)
-        assertEquals(4, platform.pending.size)
+        assertEquals(4, platform.alarms.size)
         assertEquals(setOf(Instant.parse("2026-10-29T12:30:00Z"), Instant.parse("2026-10-30T12:30:00Z")),
-            platform.pending.values.map { it.occurrenceDue }.toSet())
+            platform.alarms.values.map { it.occurrenceDue }.toSet())
     }
 
     @Test
-    fun afterARebootEverythingIsScheduledAgainWithoutDuplicates() {
+    fun afterARebootEverythingIsScheduledAgain() {
         sync.sync(listOf(daily), emptyList(), now, zone)
-        val before = platform.pending.keys.toSet()
+        val before = platform.alarms.keys.toSet()
+        platform.reboot()
         sync.resyncFromScratch(listOf(daily), emptyList(), now, zone)
-        assertEquals(before, platform.pending.keys)
+        assertEquals(before, platform.alarms.keys)
+    }
+
+    @Test
+    fun afterAnAppUpdateNoStaleAlarmIsLeftBehind() {
+        // Found on the emulator: alarms survive an update, and forgetting the ledger first orphaned them.
+        sync.sync(listOf(daily), emptyList(), now, zone)
+        val done = Occurrence(daily.id, Instant.parse("2026-10-28T12:30:00Z"), OccurrenceStatus.Done(now))
+        sync.resyncFromScratch(listOf(daily), listOf(done), now, zone)
+        assertEquals(platform.ledger, platform.alarms.keys)
+        assertEquals(4, platform.alarms.size)
     }
 
     @Test
     fun deletingAReminderCancelsItsAlerts() {
         sync.sync(listOf(daily), emptyList(), now, zone)
         sync.sync(emptyList(), emptyList(), now, zone)
-        assertEquals(emptyMap(), platform.pending)
+        assertEquals(emptyMap(), platform.alarms)
     }
 }
