@@ -16,6 +16,6 @@ class AppTest {
         onNodeWithContentDescription("Add reminder").assertExists()
 
         onNodeWithText("Money").performClick()
-        onNodeWithText("No loans yet").assertExists()
+        onNodeWithText("No money items yet").assertExists()
     }
 }

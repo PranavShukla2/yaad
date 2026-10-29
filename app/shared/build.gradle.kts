@@ -20,6 +20,7 @@ kotlin {
             api(projects.ui.designsystem)
             api(projects.feature.reminders)
             api(projects.feature.loans)
+            api(projects.feature.money)
         }
         named("desktopTest").dependencies {
             implementation(libs.sqldelight.sqlite.driver)

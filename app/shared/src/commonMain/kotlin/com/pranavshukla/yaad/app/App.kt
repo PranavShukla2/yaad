@@ -31,9 +31,13 @@ import com.pranavshukla.yaad.app.resources.tab_settings
 import com.pranavshukla.yaad.app.resources.tab_today
 import com.pranavshukla.yaad.app.resources.tab_upcoming
 import com.pranavshukla.yaad.feature.loans.LoanForm
-import com.pranavshukla.yaad.feature.loans.LoanPane
 import com.pranavshukla.yaad.feature.loans.LoansModel
-import com.pranavshukla.yaad.feature.loans.LoansPane
+import com.pranavshukla.yaad.feature.loans.rememberEmiTitle
+import com.pranavshukla.yaad.feature.money.MoneyChoice
+import com.pranavshukla.yaad.feature.money.MoneyChooser
+import com.pranavshukla.yaad.feature.money.MoneyItemForm
+import com.pranavshukla.yaad.feature.money.MoneyPane
+import com.pranavshukla.yaad.feature.money.MoneyPaneState
 import com.pranavshukla.yaad.feature.reminders.AgendaTab
 import com.pranavshukla.yaad.feature.reminders.EditorState
 import com.pranavshukla.yaad.feature.reminders.Pane
@@ -69,7 +73,9 @@ fun App(
     YaadTheme {
         var selected by rememberSaveable { mutableIntStateOf(0) }
         var pane by remember { mutableStateOf<Pane>(Pane.None) }
-        var loanPane by remember { mutableStateOf<LoanPane>(LoanPane.None) }
+        var moneyPane by remember { mutableStateOf<MoneyPaneState>(MoneyPaneState.None) }
+        var choosing by remember { mutableStateOf(false) }
+        val emiTitle = rememberEmiTitle()
         val tabs = Tab.entries
         val icons = listOf(YaadIcons.Today, YaadIcons.Upcoming, YaadIcons.Money, YaadIcons.Settings)
         BoxWithConstraints {
@@ -77,12 +83,12 @@ fun App(
             YaadNavigationScaffold(
                 items = tabs.mapIndexed { i, tab -> NavItem(stringResource(tab.label), icons[i]) },
                 selectedIndex = selected,
-                onSelect = { selected = it; pane = Pane.None; loanPane = LoanPane.None },
-                floatingAction = if (twoPane || (pane == Pane.None && loanPane == LoanPane.None)) {
+                onSelect = { selected = it; pane = Pane.None; moneyPane = MoneyPaneState.None },
+                floatingAction = if (twoPane || (pane == Pane.None && moneyPane == MoneyPaneState.None)) {
                     {
                         FloatingActionButton(onClick = {
                             if (tabs[selected] == Tab.Money) {
-                                loanPane = LoanPane.Editor(LoanForm(id = loans.newId(), firstEmiDate = reminders.state.value.let { s -> s.now.toLocalDateTime(s.zone).date }))
+                                choosing = true
                             } else {
                                 val state = reminders.state.value
                                 if (tabs[selected] != Tab.Upcoming) selected = Tab.Today.ordinal
@@ -96,6 +102,19 @@ fun App(
                     null
                 },
             ) { padding ->
+                if (choosing) {
+                    MoneyChooser(
+                        onChoose = { choice ->
+                            choosing = false
+                            val today = reminders.state.value.let { s -> s.now.toLocalDateTime(s.zone).date }
+                            moneyPane = when (choice) {
+                                MoneyChoice.Loan -> MoneyPaneState.LoanEdit(LoanForm(id = loans.newId(), firstEmiDate = today))
+                                is MoneyChoice.Item -> MoneyPaneState.NewItem(MoneyItemForm(choice.kind, date = today))
+                            }
+                        },
+                        onDismiss = { choosing = false },
+                    )
+                }
                 when (val tab = tabs[selected]) {
                     Tab.Today, Tab.Upcoming -> Column(Modifier.padding(top = padding.calculateTopPadding())) {
                         if (tab == Tab.Today && pane == Pane.None) AlertAccessBanner(alertAccess, onFixAlertAccess)
@@ -107,14 +126,16 @@ fun App(
                             contentPadding = PaddingValues(bottom = padding.calculateBottomPadding()),
                         )
                     }
-                    Tab.Money -> LoansPane(
-                        model = loans,
-                        pane = loanPane,
-                        onPane = { loanPane = it },
+                    Tab.Money -> MoneyPane(
+                        reminders = reminders,
+                        loans = loans,
+                        pane = moneyPane,
+                        onPane = { moneyPane = it },
+                        emiTitle = emiTitle,
                         modifier = Modifier.padding(top = padding.calculateTopPadding()),
                         contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = padding.calculateBottomPadding() + 88.dp),
                     )
-                    else -> EmptyState(
+                    Tab.Settings -> EmptyState(
                         title = stringResource(tab.emptyTitle),
                         message = stringResource(tab.emptyMessage),
                         modifier = Modifier.padding(padding),

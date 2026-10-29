@@ -53,6 +53,7 @@ class LoanFlowTest {
 
         onNodeWithText("Money").performClick()
         onNodeWithContentDescription("Add reminder").performClick()
+        onNodeWithText("Loan or EMI").performClick()
         type(LoanLenderTag, "HDFC")
         type(LoanPrincipalTag, "1000000")
         type(LoanRateTag, "8.5")
