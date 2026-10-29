@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextOverflow
 
 /** A top-level destination: Today, Upcoming, Money, Settings. */
 data class NavItem(val label: String, val icon: ImageVector)
@@ -47,7 +48,7 @@ fun YaadNavigationScaffold(
                             selected = index == selectedIndex,
                             onClick = { onSelect(index) },
                             icon = { Icon(item.icon, contentDescription = null) },
-                            label = { Text(item.label) },
+                            label = { NavLabel(item.label) },
                         )
                     }
                 }
@@ -62,7 +63,7 @@ fun YaadNavigationScaffold(
                                 selected = index == selectedIndex,
                                 onClick = { onSelect(index) },
                                 icon = { Icon(item.icon, contentDescription = null) },
-                                label = { Text(item.label) },
+                                label = { NavLabel(item.label) },
                             )
                         }
                     }
@@ -72,4 +73,13 @@ fun YaadNavigationScaffold(
             )
         }
     }
+}
+
+/**
+ * One line, shortened with "…" at large text sizes rather than broken mid-word. The "…" is only drawn: screen
+ * readers still read the whole label.
+ */
+@Composable
+private fun NavLabel(label: String) {
+    Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
 }

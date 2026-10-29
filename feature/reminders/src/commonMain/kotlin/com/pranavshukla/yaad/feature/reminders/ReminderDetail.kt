@@ -3,6 +3,8 @@ package com.pranavshukla.yaad.feature.reminders
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -144,10 +146,12 @@ fun ReminderDetail(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ActionRow(item: AgendaItem, onAct: (AgendaItem, AlertAction) -> Unit) {
     var snoozeMenu by remember { mutableStateOf(false) }
-    Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Wraps rather than squeezing when text is large.
+    FlowRow(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(onClick = { onAct(item, AlertAction.Done) }) { Text(stringResource(Res.string.action_done)) }
         Box {
             OutlinedButton(onClick = { snoozeMenu = true }) { Text(stringResource(Res.string.action_snooze)) }

@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pranavshukla.yaad.core.finance.MoneyFormat
 import com.pranavshukla.yaad.core.quickadd.QuickAddParser
@@ -56,7 +57,7 @@ fun QuickAddBar(model: RemindersModel, state: RemindersState, onEdit: (EditorSta
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            placeholder = { Text(stringResource(Res.string.quick_add_hint)) },
+            placeholder = { Text(stringResource(Res.string.quick_add_hint), maxLines = 2, overflow = TextOverflow.Ellipsis) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { add() }),
