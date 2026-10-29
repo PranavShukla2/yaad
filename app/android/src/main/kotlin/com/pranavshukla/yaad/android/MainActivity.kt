@@ -28,6 +28,7 @@ class MainActivity : FragmentActivity() {
     private val access = mutableStateOf(AlertAccess())
     private val locked = mutableStateOf(false)
     private var lockOn = false
+    private var prompting = false
 
     private val askForNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         refreshAccess()
@@ -71,7 +72,7 @@ class MainActivity : FragmentActivity() {
                     locked.value = false
                 } else if (first) {
                     locked.value = true
-                    unlock()
+                    if (lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) unlock()
                 }
                 first = false
             }
@@ -92,11 +93,6 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        if (lockOn && locked.value) unlock()
-    }
-
     override fun onStop() {
         super.onStop()
         if (lockOn) locked.value = true
@@ -105,12 +101,15 @@ class MainActivity : FragmentActivity() {
     override fun onResume() {
         super.onResume()
         refreshAccess()
+        // The prompt can only be shown once the activity is resumed.
+        if (lockOn && locked.value) unlock()
     }
 
     private fun canLock() = BiometricManager.from(this).canAuthenticate(Authenticators) == BiometricManager.BIOMETRIC_SUCCESS
 
     /** Fingerprint, face or the device PIN, whichever the user has set up. */
     private fun unlock() {
+        if (prompting) return
         if (!canLock()) {
             // The screen lock was removed since the app lock was turned on: nothing can verify the user.
             locked.value = false
@@ -118,9 +117,15 @@ class MainActivity : FragmentActivity() {
         }
         val prompt = BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                prompting = false
                 locked.value = false
             }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                prompting = false
+            }
         })
+        prompting = true
         prompt.authenticate(
             BiometricPrompt.PromptInfo.Builder()
                 .setTitle(getString(R.string.unlock_title))
