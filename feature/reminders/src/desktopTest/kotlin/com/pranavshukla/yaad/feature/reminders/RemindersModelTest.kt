@@ -90,4 +90,26 @@ class RemindersModelTest {
         withTimeout(5_000) { model.state.first { it.reminders.size == 20 } }
         scope.cancel()
     }
+
+    @Test
+    fun undoAfterTravelClearsTheRecordMadeInTheOtherZone() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        var zoneNow = TimeZone.of("Asia/Kolkata")
+        val store = testStore(dispatcher)
+        val model = RemindersModel(store, backgroundScope, TestClock, { zoneNow }, {}, dispatcher, emptyFlow())
+        val daily = Reminder(model.newId(), "Pill", Schedule(LocalDateTime(2026, 10, 28, 21, 0), com.pranavshukla.yaad.core.model.RecurrenceRule(com.pranavshukla.yaad.core.model.Frequency.Daily())))
+        model.save(daily)
+        runCurrent()
+        model.act(model.state.value.agenda.today.single(), AlertAction.Done)
+        runCurrent()
+        // Fly to London: the reminder list is read again in the new zone; today's 21:00 is still done.
+        zoneNow = TimeZone.of("Europe/London")
+        model.save(daily) // any change recomputes the state
+        runCurrent()
+        val item = model.state.value.agenda.today.single { it.reminder.id == daily.id }
+        assertTrue(item.isHandled)
+        model.undo(item)
+        runCurrent()
+        assertEquals(emptyList(), store.occurrences(daily.id), "the Kolkata record is cleared, not left behind")
+    }
 }

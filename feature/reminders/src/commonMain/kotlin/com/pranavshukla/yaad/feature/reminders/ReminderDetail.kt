@@ -38,6 +38,8 @@ import com.pranavshukla.yaad.core.model.Reminder
 import com.pranavshukla.yaad.core.scheduling.Agenda
 import com.pranavshukla.yaad.core.scheduling.AgendaItem
 import com.pranavshukla.yaad.core.scheduling.AlertAction
+import com.pranavshukla.yaad.core.scheduling.HistoryIndex
+import com.pranavshukla.yaad.core.recurrence.zoneOr
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
 import com.pranavshukla.yaad.core.finance.MoneyFormat
@@ -61,8 +63,8 @@ fun ReminderDetail(
     val today = state.now.toLocalDateTime(state.zone).date
     val history = state.historyOf(reminder.id)
     val next = Agenda.nextDue(reminder, state.history, state.now, state.zone)?.let { due ->
-        val status = history.firstOrNull { it.due.toEpochMilliseconds() == due.toEpochMilliseconds() }?.status
-        AgendaItem(reminder, due, status ?: OccurrenceStatus.Pending, due.toLocalDateTime(state.zone).date)
+        val zone = reminder.schedule.zoneOr(state.zone)
+        AgendaItem(reminder, due, HistoryIndex(history).status(reminder, due, zone), due.toLocalDateTime(zone).date)
     }
     var confirmDelete by remember { mutableStateOf(false) }
 

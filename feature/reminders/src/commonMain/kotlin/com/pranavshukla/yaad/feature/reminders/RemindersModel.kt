@@ -7,6 +7,8 @@ import com.pranavshukla.yaad.core.scheduling.Agenda
 import com.pranavshukla.yaad.core.scheduling.AgendaItem
 import com.pranavshukla.yaad.core.scheduling.AgendaView
 import com.pranavshukla.yaad.core.scheduling.AlertAction
+import com.pranavshukla.yaad.core.scheduling.HistoryIndex
+import com.pranavshukla.yaad.core.recurrence.zoneOr
 import com.pranavshukla.yaad.core.scheduling.toOccurrence
 import com.pranavshukla.yaad.data.ReminderStore
 import kotlinx.coroutines.CoroutineDispatcher
@@ -73,11 +75,19 @@ class RemindersModel(
 
     /** Done, Skip or Snooze from a list or the detail screen; "tomorrow" means tomorrow at 9:00. */
     fun act(item: AgendaItem, action: AlertAction) = write {
+        clearRecord(item)
         store.record(action.toOccurrence(item.reminder.id, item.due, clock.now(), zone(), Morning))
     }
 
     /** Puts a handled occurrence back to pending. */
-    fun undo(item: AgendaItem) = write { store.clear(item.reminder.id, item.due) }
+    fun undo(item: AgendaItem) = write { clearRecord(item) }
+
+    /** Clears what was recorded for [item], even if it was recorded in another time zone. */
+    private fun clearRecord(item: AgendaItem) {
+        val history = store.occurrences(item.reminder.id)
+        val record = HistoryIndex(history).record(item.reminder, item.due, item.reminder.schedule.zoneOr(zone()))
+        store.clear(item.reminder.id, record?.due ?: item.due)
+    }
 
     fun toggleChecklist(reminder: Reminder, index: Int) = write {
         val current = store.reminder(reminder.id) ?: return@write
