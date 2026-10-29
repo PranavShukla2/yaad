@@ -21,8 +21,10 @@ class AlertActionTest {
 
     @Test
     fun doneAndSkipRecordTheTime() {
-        assertEquals(Occurrence(id, due, OccurrenceStatus.Done(now)), apply(AlertAction.Done))
-        assertEquals(Occurrence(id, due, OccurrenceStatus.Skipped(now)), apply(AlertAction.Skip))
+        // The local due time is kept too: 03:30 UTC was 9:00 in Kolkata.
+        val local = kotlinx.datetime.LocalDateTime(2026, 10, 28, 9, 0)
+        assertEquals(Occurrence(id, due, OccurrenceStatus.Done(now), dueLocal = local), apply(AlertAction.Done))
+        assertEquals(Occurrence(id, due, OccurrenceStatus.Skipped(now), dueLocal = local), apply(AlertAction.Skip))
     }
 
     @Test

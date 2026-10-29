@@ -38,10 +38,10 @@ object MoneySummary {
         val first = LocalDate(year, month, 1)
         val items = itemsBetween(reminders, history, first, first.plus(1, DateTimeUnit.MONTH), deviceZone, currency)
         val zero = Money.zero(currency)
-        val records = history.associateBy { it.reminderId to it.due.toEpochMilliseconds() }
+        val index = HistoryIndex(history)
         fun sum(list: List<MoneyItem>, amount: (MoneyItem) -> Money?) = list.mapNotNull(amount).fold(zero, Money::plus)
         val paidAmount = { item: MoneyItem ->
-            records[item.reminder.id to item.due.toEpochMilliseconds()]?.paidAmount?.takeIf { it.currency == currency } ?: item.amount
+            index.record(item.reminder, item.due, item.reminder.schedule.zoneOr(deviceZone))?.paidAmount?.takeIf { it.currency == currency } ?: item.amount
         }
         return MoneyMonth(
             items = items,
@@ -80,13 +80,13 @@ object MoneySummary {
         deviceZone: TimeZone,
         currency: Currency,
     ): List<MoneyItem> {
-        val statuses = history.associate { (it.reminderId to it.due.toEpochMilliseconds()) to it.status }
+        val index = HistoryIndex(history)
         return reminders.asSequence()
             .filter { !it.archived && (it.amount?.currency ?: currency) == currency && it.isMoney() }
             .flatMap { reminder ->
                 val zone = reminder.schedule.zoneOr(deviceZone)
                 reminder.schedule.occurrencesBetween(from.atStartOfDayIn(zone), until.atStartOfDayIn(zone), zone).map { due ->
-                    val status = statuses[reminder.id to due.toEpochMilliseconds()]
+                    val status = index.record(reminder, due, zone)?.status
                     status to MoneyItem(reminder, due, due.toLocalDateTime(zone).date, reminder.amount, status is OccurrenceStatus.Done)
                 }
             }
