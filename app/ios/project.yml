@@ -5,6 +5,7 @@ options:
   deploymentTarget:
     iOS: "16.0"
   developmentLanguage: en
+  knownRegions: [en, hi, Base]
   createIntermediateGroups: true
 settings:
   base:

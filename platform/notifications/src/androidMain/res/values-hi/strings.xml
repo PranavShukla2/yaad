@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_general">रिमाइंडर</string>
+    <string name="channel_money">पैसा</string>
+    <string name="channel_health">सेहत</string>
+    <string name="channel_personal">निजी</string>
+    <string name="channel_work">काम</string>
+    <string name="channel_home">घर</string>
+    <string name="channel_vehicle">गाड़ी</string>
+    <string name="due_at">%1$s को देय</string>
+    <string name="due_now">अभी देय, %1$s</string>
+    <string name="auto_pay_check">अपने आप भुगतान: देख लें कि हुआ या नहीं, %1$s</string>
+    <string name="still_due">अब भी बाकी, %1$s</string>
+    <string name="snoozed">टाला गया, देय %1$s</string>
+    <string name="action_done">हो गया</string>
+    <string name="action_snooze">10 मिनट बाद</string>
+    <string name="action_skip">छोड़ें</string>
+</resources>

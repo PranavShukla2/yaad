@@ -1,0 +1,11 @@
+/* Notification text in Hindi. Keys are read by platform/notifications (IosAlerts.text). */
+"due_at" = "%@ को देय";
+"due_now" = "अभी देय, %@";
+"auto_pay_check" = "अपने आप भुगतान: देख लें कि हुआ या नहीं, %@";
+"still_due" = "अब भी बाकी, %@";
+"snoozed" = "टाला गया, देय %@";
+"action_done" = "हो गया";
+"action_snooze" = "10 मिनट बाद";
+"action_skip" = "छोड़ें";
+"refill_title" = "रिमाइंडर आते रहें, इसके लिए याद खोलें";
+"refill_body" = "आपके रिमाइंडर iPhone और iPad एक साथ जितने रख सकते हैं, उससे ज़्यादा हैं।";
