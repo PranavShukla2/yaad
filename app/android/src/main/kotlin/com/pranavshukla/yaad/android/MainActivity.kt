@@ -27,7 +27,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        setContent { App((application as YaadApplication).reminders, access.value, ::fixAccess) }
+        val app = application as YaadApplication
+        setContent { App(app.reminders, app.loans, access.value, ::fixAccess) }
         if (savedInstanceState == null && needsNotificationPermission()) {
             askForNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
         }

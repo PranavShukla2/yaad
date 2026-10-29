@@ -14,6 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import kotlinx.datetime.toLocalDateTime
 import com.pranavshukla.yaad.app.resources.Res
 import com.pranavshukla.yaad.app.resources.action_add
 import com.pranavshukla.yaad.app.resources.empty_money_message
@@ -28,6 +30,10 @@ import com.pranavshukla.yaad.app.resources.tab_money
 import com.pranavshukla.yaad.app.resources.tab_settings
 import com.pranavshukla.yaad.app.resources.tab_today
 import com.pranavshukla.yaad.app.resources.tab_upcoming
+import com.pranavshukla.yaad.feature.loans.LoanForm
+import com.pranavshukla.yaad.feature.loans.LoanPane
+import com.pranavshukla.yaad.feature.loans.LoansModel
+import com.pranavshukla.yaad.feature.loans.LoansPane
 import com.pranavshukla.yaad.feature.reminders.AgendaTab
 import com.pranavshukla.yaad.feature.reminders.EditorState
 import com.pranavshukla.yaad.feature.reminders.Pane
@@ -54,10 +60,16 @@ private enum class Tab(val label: StringResource, val emptyTitle: StringResource
  * something is missing, Today explains it and [onFixAlertAccess] takes the user to fix it.
  */
 @Composable
-fun App(reminders: RemindersModel, alertAccess: AlertAccess = AlertAccess(), onFixAlertAccess: () -> Unit = {}) {
+fun App(
+    reminders: RemindersModel,
+    loans: LoansModel,
+    alertAccess: AlertAccess = AlertAccess(),
+    onFixAlertAccess: () -> Unit = {},
+) {
     YaadTheme {
         var selected by rememberSaveable { mutableIntStateOf(0) }
         var pane by remember { mutableStateOf<Pane>(Pane.None) }
+        var loanPane by remember { mutableStateOf<LoanPane>(LoanPane.None) }
         val tabs = Tab.entries
         val icons = listOf(YaadIcons.Today, YaadIcons.Upcoming, YaadIcons.Money, YaadIcons.Settings)
         BoxWithConstraints {
@@ -65,13 +77,17 @@ fun App(reminders: RemindersModel, alertAccess: AlertAccess = AlertAccess(), onF
             YaadNavigationScaffold(
                 items = tabs.mapIndexed { i, tab -> NavItem(stringResource(tab.label), icons[i]) },
                 selectedIndex = selected,
-                onSelect = { selected = it; pane = Pane.None },
-                floatingAction = if (twoPane || pane == Pane.None) {
+                onSelect = { selected = it; pane = Pane.None; loanPane = LoanPane.None },
+                floatingAction = if (twoPane || (pane == Pane.None && loanPane == LoanPane.None)) {
                     {
                         FloatingActionButton(onClick = {
-                            val state = reminders.state.value
-                            if (tabs[selected] != Tab.Upcoming) selected = Tab.Today.ordinal
-                            pane = Pane.Editor(EditorState.new(reminders.newId(), state.now, state.zone))
+                            if (tabs[selected] == Tab.Money) {
+                                loanPane = LoanPane.Editor(LoanForm(id = loans.newId(), firstEmiDate = reminders.state.value.let { s -> s.now.toLocalDateTime(s.zone).date }))
+                            } else {
+                                val state = reminders.state.value
+                                if (tabs[selected] != Tab.Upcoming) selected = Tab.Today.ordinal
+                                pane = Pane.Editor(EditorState.new(reminders.newId(), state.now, state.zone))
+                            }
                         }) {
                             Icon(YaadIcons.Add, contentDescription = stringResource(Res.string.action_add))
                         }
@@ -91,6 +107,13 @@ fun App(reminders: RemindersModel, alertAccess: AlertAccess = AlertAccess(), onF
                             contentPadding = PaddingValues(bottom = padding.calculateBottomPadding()),
                         )
                     }
+                    Tab.Money -> LoansPane(
+                        model = loans,
+                        pane = loanPane,
+                        onPane = { loanPane = it },
+                        modifier = Modifier.padding(top = padding.calculateTopPadding()),
+                        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = padding.calculateBottomPadding() + 88.dp),
+                    )
                     else -> EmptyState(
                         title = stringResource(tab.emptyTitle),
                         message = stringResource(tab.emptyMessage),

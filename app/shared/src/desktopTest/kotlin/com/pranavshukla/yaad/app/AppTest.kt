@@ -11,11 +11,11 @@ import kotlin.test.Test
 class AppTest {
     @Test
     fun opensOnTodayAndSwitchesTabs() = runComposeUiTest {
-        setContent { App(testModel()) }
+        setContent { TestApp().let { App(it.reminders, it.loans) } }
         onNodeWithText("Nothing due today").assertExists()
         onNodeWithContentDescription("Add reminder").assertExists()
 
         onNodeWithText("Money").performClick()
-        onNodeWithText("No money items yet").assertExists()
+        onNodeWithText("No loans yet").assertExists()
     }
 }

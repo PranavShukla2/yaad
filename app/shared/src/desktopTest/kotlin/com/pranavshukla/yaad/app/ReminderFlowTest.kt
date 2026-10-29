@@ -54,8 +54,8 @@ class ReminderFlowTest {
         waitUntil(timeoutMillis = 5_000) { onAllNodes(hasText(text, substring = true)).fetchSemanticsNodes().isNotEmpty() }
 
     private fun flow(width: Int) = runComposeUiTest {
-        val model = testModel(::replan)
-        setContent { Box(Modifier.requiredSize(width.dp, 760.dp)) { App(model) } }
+        val app = TestApp(::replan)
+        setContent { Box(Modifier.requiredSize(width.dp, 760.dp)) { App(app.reminders, app.loans) } }
 
         onNodeWithContentDescription("Add reminder").performClick()
         onNodeWithTag(EditorTitleTag).performTextInput("Pay electricity bill")

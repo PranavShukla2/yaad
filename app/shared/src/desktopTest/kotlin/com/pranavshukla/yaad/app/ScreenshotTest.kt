@@ -59,8 +59,8 @@ class ScreenshotTest {
     }
 
     private fun screens(device: String, width: Int, height: Int) = runComposeUiTest {
-        val model = testModel().apply { seed() }
-        setContent { Box(Modifier.requiredSize(width.dp, height.dp)) { App(model) } }
+        val app = TestApp().apply { reminders.seed() }
+        setContent { Box(Modifier.requiredSize(width.dp, height.dp)) { App(app.reminders, app.loans) } }
         waitUntil(timeoutMillis = 5_000) { onAllNodes(hasText("Call mom")).fetchSemanticsNodes().isNotEmpty() }
         save("$device-today")
         onNodeWithText("Call mom").performClick()
