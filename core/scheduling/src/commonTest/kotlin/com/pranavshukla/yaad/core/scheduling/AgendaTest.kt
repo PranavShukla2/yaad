@@ -117,4 +117,12 @@ class AgendaTest {
         val call = reminder("call", LocalDateTime(2026, 10, 28, 14, 0))
         assertEquals(true, Agenda.isOverdue(call, Instant.parse("2026-10-28T08:30:00Z"), now, zone))
     }
+
+    @Test
+    fun aPastBirthdayIsNotOverdue() {
+        val asha = LifeTemplates.birthday(ReminderId("asha"), "Asha", LocalDate(1990, 10, 20))
+        val a = agenda(listOf(asha))
+        assertEquals(emptyList(), a.overdue)
+        assertEquals(null, Agenda.nextDue(asha, emptyList(), now, zone)?.takeIf { it < now }, "the next one is next year")
+    }
 }

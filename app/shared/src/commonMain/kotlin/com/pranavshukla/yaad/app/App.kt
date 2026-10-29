@@ -40,6 +40,8 @@ import com.pranavshukla.yaad.feature.money.MoneyPane
 import com.pranavshukla.yaad.feature.money.MoneyPaneState
 import com.pranavshukla.yaad.feature.reminders.AgendaTab
 import com.pranavshukla.yaad.feature.reminders.EditorState
+import com.pranavshukla.yaad.feature.reminders.LifeChooser
+import com.pranavshukla.yaad.feature.reminders.LifeForm
 import com.pranavshukla.yaad.feature.reminders.Pane
 import com.pranavshukla.yaad.feature.reminders.RemindersModel
 import com.pranavshukla.yaad.feature.reminders.RemindersPane
@@ -75,6 +77,7 @@ fun App(
         var pane by remember { mutableStateOf<Pane>(Pane.None) }
         var moneyPane by remember { mutableStateOf<MoneyPaneState>(MoneyPaneState.None) }
         var choosing by remember { mutableStateOf(false) }
+        var choosingLife by remember { mutableStateOf(false) }
         val emiTitle = rememberEmiTitle()
         val tabs = Tab.entries
         val icons = listOf(YaadIcons.Today, YaadIcons.Upcoming, YaadIcons.Money, YaadIcons.Settings)
@@ -90,9 +93,8 @@ fun App(
                             if (tabs[selected] == Tab.Money) {
                                 choosing = true
                             } else {
-                                val state = reminders.state.value
                                 if (tabs[selected] != Tab.Upcoming) selected = Tab.Today.ordinal
-                                pane = Pane.Editor(EditorState.new(reminders.newId(), state.now, state.zone))
+                                choosingLife = true
                             }
                         }) {
                             Icon(YaadIcons.Add, contentDescription = stringResource(Res.string.action_add))
@@ -102,6 +104,20 @@ fun App(
                     null
                 },
             ) { padding ->
+                if (choosingLife) {
+                    val state = reminders.state.value
+                    LifeChooser(
+                        onReminder = {
+                            choosingLife = false
+                            pane = Pane.Editor(EditorState.new(reminders.newId(), state.now, state.zone))
+                        },
+                        onLife = { kind ->
+                            choosingLife = false
+                            pane = Pane.Life(LifeForm(kind, date = state.now.toLocalDateTime(state.zone).date))
+                        },
+                        onDismiss = { choosingLife = false },
+                    )
+                }
                 if (choosing) {
                     MoneyChooser(
                         onChoose = { choice ->

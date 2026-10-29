@@ -30,6 +30,7 @@ sealed interface Pane {
     data object None : Pane
     data class Detail(val id: ReminderId) : Pane
     data class Editor(val state: EditorState) : Pane
+    data class Life(val form: LifeForm) : Pane
 }
 
 /** A list of reminders with their detail and editor, laid out for the window width. */
@@ -78,6 +79,16 @@ fun RemindersPane(
                             )
                         }
                     }
+                    is Pane.Life -> LifeEditor(
+                        initial = pane.form,
+                        today = state.now.toLocalDateTime(state.zone).date,
+                        onSave = { form ->
+                            val id = model.newId()
+                            form.toReminders(id, state.now.toLocalDateTime(state.zone))?.forEach(model::save)
+                            onPane(Pane.Detail(id))
+                        },
+                        onCancel = { onPane(Pane.None) },
+                    )
                     is Pane.Editor -> ReminderEditor(
                         initial = pane.state,
                         today = state.now.toLocalDateTime(state.zone).date,

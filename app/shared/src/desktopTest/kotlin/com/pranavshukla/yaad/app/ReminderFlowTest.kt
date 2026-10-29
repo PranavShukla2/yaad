@@ -58,6 +58,7 @@ class ReminderFlowTest {
         setContent { Box(Modifier.requiredSize(width.dp, 760.dp)) { App(app.reminders, app.loans) } }
 
         onNodeWithContentDescription("Add reminder").performClick()
+        onNode(hasText("Reminder")).performClick()
         onNodeWithTag(EditorTitleTag).performTextInput("Pay electricity bill")
         onNodeWithTag(EditorSaveTag).performClick()
 
