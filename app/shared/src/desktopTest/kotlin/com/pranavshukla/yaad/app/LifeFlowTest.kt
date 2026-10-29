@@ -62,7 +62,7 @@ class LifeFlowTest {
         setContent { Box(Modifier.requiredSize(1000.dp, 760.dp)) { App(app.reminders, app.loans) } }
         onNodeWithContentDescription("Add reminder").performClick()
         onNodeWithText("Medicine").performClick()
-        onAllNodes(hasSetTextAction())[0].performTextInput("Vitamin D")
+        onNode(hasSetTextAction() and hasText("Name")).performTextInput("Vitamin D")
         onNodeWithText("Save").performClick()
 
         waitFor("Next:")
