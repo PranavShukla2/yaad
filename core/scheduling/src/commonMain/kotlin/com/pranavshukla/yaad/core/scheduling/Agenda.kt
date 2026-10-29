@@ -3,6 +3,7 @@ package com.pranavshukla.yaad.core.scheduling
 import com.pranavshukla.yaad.core.model.Occurrence
 import com.pranavshukla.yaad.core.model.OccurrenceStatus
 import com.pranavshukla.yaad.core.model.Reminder
+import com.pranavshukla.yaad.core.model.ReminderType
 import com.pranavshukla.yaad.core.recurrence.nextAfter
 import com.pranavshukla.yaad.core.recurrence.occurrencesBetween
 import com.pranavshukla.yaad.core.recurrence.zoneOr
@@ -37,6 +38,9 @@ data class AgendaView(
  */
 object Agenda {
     private const val maxOverduePerReminder = 10
+
+    /** A birthday last week is not a task left undone. */
+    private val NeverOverdue = setOf(ReminderType.Birthday)
     private const val overdueDays = 30
     private const val upcomingDays = 30
 
@@ -56,7 +60,7 @@ object Agenda {
                 val item = AgendaItem(reminder, due, statuses[reminder.id to due.toEpochMilliseconds()] ?: OccurrenceStatus.Pending, date)
                 val isPast = isOverdue(reminder, due, now, zone)
                 when {
-                    isPast && date < today -> if (!item.isHandled) missed += item
+                    isPast && date < today -> if (!item.isHandled && reminder.type !in NeverOverdue) missed += item
                     isPast -> if (item.isHandled) todays += item else missed += item
                     date == today -> todays += item
                     else -> upcoming += item
@@ -85,7 +89,7 @@ object Agenda {
             .filter { it.status is OccurrenceStatus.Done || it.status is OccurrenceStatus.Skipped }
             .mapTo(HashSet()) { it.due.toEpochMilliseconds() }
         val zone = reminder.schedule.zoneOr(deviceZone)
-        var cursor = now - overdueDays.days
+        var cursor = if (reminder.type in NeverOverdue) now - 1.days else now - overdueDays.days
         while (true) {
             val due = reminder.schedule.nextAfter(cursor, zone) ?: return null
             if (due.toEpochMilliseconds() !in handled) return due
