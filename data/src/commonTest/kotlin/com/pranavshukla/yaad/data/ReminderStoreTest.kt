@@ -83,7 +83,7 @@ class ReminderStoreTest {
     fun savingAgainKeepsHistoryAndReplacesTheChecklist() {
         val store = store()
         store.save(emi)
-        val paid = Occurrence(emi.id, Instant.parse("2026-11-05T03:30:00Z"), OccurrenceStatus.Done(now), emi.amount)
+        val paid = Occurrence(emi.id, Instant.parse("2026-11-05T03:30:00Z"), OccurrenceStatus.Done(now), emi.amount, dueLocal = LocalDateTime(2026, 11, 5, 9, 0))
         store.record(paid)
         val edited = emi.copy(title = "Home loan", checklist = listOf(ChecklistItem("Only this")))
         store.save(edited)
