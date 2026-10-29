@@ -44,7 +44,7 @@
     <string name="field_first_emi">First EMI on %1$s</string>
     <string name="field_bank_emi">EMI from the bank (optional)</string>
     <string name="preview_emi">EMI %1$s</string>
-    <string name="preview_estimated">Estimated by Yaad; enter the bank\'s EMI if it differs.</string>
+    <string name="preview_estimated">Estimated by Yaad; enter the bank’s EMI if it differs.</string>
     <string name="kind_home">Home</string>
     <string name="kind_car">Car</string>
     <string name="kind_personal">Personal</string>
