@@ -30,7 +30,7 @@ interface PlatformAlerts {
  */
 class NotificationSync(
     private val platform: PlatformAlerts,
-    private val settings: PlanSettings = PlanSettings(),
+    var settings: PlanSettings = PlanSettings(),
     private val capacity: Int? = null,
 ) {
     fun sync(reminders: List<Reminder>, history: List<Occurrence>, now: Instant, zone: TimeZone) {
@@ -67,3 +67,13 @@ class NotificationSync(
         val CatchUpWindow = 24.hours
     }
 }
+
+/** The plan settings that follow from the user's settings. */
+fun com.pranavshukla.yaad.core.model.AppSettings.planSettings(base: PlanSettings): PlanSettings = base.copy(
+    allDayTime = allDayTime,
+    quietHours = if (quietStart != null && quietEnd != null) com.pranavshukla.yaad.core.scheduling.QuietHours(quietStart!!, quietEnd!!) else null,
+)
+
+/** "Due now, 5 Nov · ₹15,000.00", or without the amount when amounts are hidden. */
+fun withAmount(text: String, reminder: Reminder, hideAmounts: Boolean): String =
+    reminder.amount?.takeIf { !hideAmounts }?.let { "$text · ${com.pranavshukla.yaad.core.finance.MoneyFormat.format(it)}" } ?: text

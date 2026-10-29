@@ -25,6 +25,9 @@ import kotlin.time.Instant
 internal class Notifier(private val context: Context) {
     private val manager = NotificationManagerCompat.from(context)
 
+    /** Keeps amounts off notifications, which show on the lock screen. */
+    var hideAmounts = false
+
     fun createChannels() {
         val system = context.getSystemService(NotificationManager::class.java)
         val channels = listOf(General to R.string.channel_general) + BuiltInCategory.entries.map { channelId(it.id) to nameOf(it) }
@@ -57,7 +60,7 @@ internal class Notifier(private val context: Context) {
         val notification = NotificationCompat.Builder(context, channelFor(reminder))
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(reminder.title)
-            .setContentText(text)
+            .setContentText(withAmount(text, reminder, hideAmounts))
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setWhen(due.toEpochMilliseconds())

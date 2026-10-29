@@ -71,6 +71,7 @@ internal fun OccurrenceRow.toModel() = Occurrence(
     },
     paidAmount = money(paid_minor, paid_currency, paid_minor_digits),
     note = note,
+    dueLocal = due_local?.let(LocalDateTime::parse),
 )
 
 /** The row for a handled occurrence; pending ones have no row. */
@@ -90,6 +91,7 @@ internal fun Occurrence.toRow(): OccurrenceRow {
         paid_currency = paidAmount?.currency?.code,
         paid_minor_digits = paidAmount?.currency?.minorDigits?.toLong(),
         note = note,
+        due_local = dueLocal?.toString(),
     )
 }
 

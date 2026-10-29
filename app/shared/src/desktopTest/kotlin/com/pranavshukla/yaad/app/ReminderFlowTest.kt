@@ -55,7 +55,7 @@ class ReminderFlowTest {
 
     private fun flow(width: Int) = runComposeUiTest {
         val app = TestApp(::replan)
-        setContent { Box(Modifier.requiredSize(width.dp, 760.dp)) { App(app.reminders, app.loans) } }
+        setContent { Box(Modifier.requiredSize(width.dp, 760.dp)) { App(app.reminders, app.loans, app.preferences) } }
 
         onNodeWithContentDescription("Add reminder").performClick()
         onNode(hasText("Reminder")).performClick()

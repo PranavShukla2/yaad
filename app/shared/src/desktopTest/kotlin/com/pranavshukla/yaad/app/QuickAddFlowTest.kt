@@ -40,7 +40,7 @@ class QuickAddFlowTest {
 
     private fun flow(device: String, width: Int) = runComposeUiTest {
         val app = TestApp()
-        setContent { Box(Modifier.requiredSize(width.dp, 760.dp)) { App(app.reminders, app.loans) } }
+        setContent { Box(Modifier.requiredSize(width.dp, 760.dp)) { App(app.reminders, app.loans, app.preferences) } }
 
         onNodeWithTag(QuickAddFieldTag).performTextInput("pay rent 15000 on 5th every month")
         waitFor("Understood as")

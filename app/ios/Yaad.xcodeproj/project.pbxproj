@@ -18,6 +18,7 @@
 		B392169FB2FD57146AE86980 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B400AEBA6E0F7FEF1CFB6C42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CACA282A789FA34E6D2E4484 /* YaadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaadApp.swift; sourceTree = "<group>"; };
+		EFAF8760FD1BA3985194DA8C /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -90,6 +91,7 @@
 			knownRegions = (
 				Base,
 				en,
+				hi,
 			);
 			mainGroup = 83D2D3F3EFA81283DBECC4F9;
 			minimizedProjectReferenceProxies = 1;
@@ -153,6 +155,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				B392169FB2FD57146AE86980 /* en */,
+				EFAF8760FD1BA3985194DA8C /* hi */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

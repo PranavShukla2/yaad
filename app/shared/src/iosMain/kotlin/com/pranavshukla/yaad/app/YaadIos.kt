@@ -7,6 +7,7 @@ import com.pranavshukla.yaad.core.model.ReminderId
 import com.pranavshukla.yaad.core.model.Schedule
 import com.pranavshukla.yaad.data.DatabaseFactory
 import com.pranavshukla.yaad.data.LoanStore
+import com.pranavshukla.yaad.data.PreferenceStore
 import com.pranavshukla.yaad.data.ReminderStore
 import com.pranavshukla.yaad.feature.loans.LoansModel
 import com.pranavshukla.yaad.feature.reminders.RemindersModel
@@ -29,19 +30,65 @@ import kotlin.time.Duration.Companion.seconds
 object YaadIos {
     private val driver by lazy { DatabaseFactory().driver() }
     internal val store by lazy { ReminderStore(driver) }
-    val notifications by lazy { IosNotifications(store) }
+    internal val preferences by lazy { PreferenceStore(driver) }
+    internal val backup by lazy { com.pranavshukla.yaad.data.Backup(driver) }
+    val notifications by lazy { IosNotifications(store, preferences) }
 
     /** The reminder screens' state; every change re-plans the notifications. */
     internal val reminders by lazy { RemindersModel(store, MainScope(), onChanged = { notifications.requestSync() }) }
     internal val loans by lazy { LoansModel(LoanStore(driver), store, MainScope(), onChanged = { notifications.requestSync() }) }
 
+    /** True while the app lock is on and Yaad has not been unlocked. */
+    internal val locked = kotlinx.coroutines.flow.MutableStateFlow(false)
+    private var lockOn = false
+
+    /** Whether the device can verify its owner (Face ID, Touch ID or passcode). */
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+    internal fun canLock(): Boolean =
+        platform.LocalAuthentication.LAContext().canEvaluatePolicy(platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication, null)
+
+    /** The app went to the background: lock it if the app lock is on. */
+    fun onBackground() {
+        if (lockOn) locked.value = true
+    }
+
+    internal fun unlock() {
+        if (!canLock()) {
+            locked.value = false
+            return
+        }
+        platform.LocalAuthentication.LAContext().evaluatePolicy(
+            platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication,
+            localizedReason = "Unlock Yaad",
+        ) { success, _ -> if (success) MainScope().launch { locked.value = false } }
+    }
+
     /** At launch. [provisional] (debug only) skips the permission prompt, for automated simulator checks. */
-    fun start(provisional: Boolean = false) = notifications.start(provisional)
+    fun start(provisional: Boolean = false) {
+        notifications.start(provisional)
+        MainScope().launch {
+            var first = true
+            preferences.settings().collect { settings ->
+                lockOn = settings.appLock
+                if (!lockOn) {
+                    locked.value = false
+                } else if (first) {
+                    locked.value = true
+                    unlock()
+                }
+                first = false
+            }
+        }
+    }
 
     /** The app came to the foreground: refill the window and recheck permission. */
     fun onBecameActive() {
         notifications.refreshAuthorization()
         notifications.requestSync()
+        MainScope().launch {
+            lockOn = preferences.settings().first().appLock
+            if (lockOn && locked.value) unlock()
+        }
     }
 
     /** Background app refresh: refill the window, then call [done]. */

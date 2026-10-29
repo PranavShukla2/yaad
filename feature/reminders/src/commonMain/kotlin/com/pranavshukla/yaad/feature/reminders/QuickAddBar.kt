@@ -24,12 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pranavshukla.yaad.core.finance.MoneyFormat
 import com.pranavshukla.yaad.core.quickadd.QuickAddParser
 import com.pranavshukla.yaad.core.scheduling.TimeLabel
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
+import com.pranavshukla.yaad.ui.designsystem.LocalTwentyFourHour
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 
@@ -55,7 +57,7 @@ fun QuickAddBar(model: RemindersModel, state: RemindersState, onEdit: (EditorSta
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            placeholder = { Text(stringResource(Res.string.quick_add_hint)) },
+            placeholder = { Text(stringResource(Res.string.quick_add_hint), maxLines = 2, overflow = TextOverflow.Ellipsis) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { add() }),
@@ -66,7 +68,7 @@ fun QuickAddBar(model: RemindersModel, state: RemindersState, onEdit: (EditorSta
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 AssistChip(onClick = {}, label = { Text(parsed.title) })
                 AssistChip(onClick = {}, label = { Text(parsed.date?.let { dayText(it, now.date) } ?: stringResource(Res.string.no_date)) })
-                parsed.time?.let { AssistChip(onClick = {}, label = { Text(TimeLabel.format(it, twentyFourHour = false)) }) }
+                parsed.time?.let { AssistChip(onClick = {}, label = { Text(TimeLabel.format(it, twentyFourHour = LocalTwentyFourHour.current)) }) }
                 parsed.rule?.let { AssistChip(onClick = {}, label = { Text(ruleText(it, now.date)) }) }
                 parsed.amount?.let { AssistChip(onClick = {}, label = { Text(MoneyFormat.format(it)) }) }
             }

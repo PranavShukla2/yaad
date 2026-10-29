@@ -21,6 +21,7 @@ kotlin {
             api(projects.feature.reminders)
             api(projects.feature.loans)
             api(projects.feature.money)
+            api(projects.feature.settings)
         }
         named("desktopTest").dependencies {
             implementation(libs.sqldelight.sqlite.driver)

@@ -51,6 +51,7 @@ import com.pranavshukla.yaad.core.scheduling.SearchFilter
 import com.pranavshukla.yaad.core.scheduling.SearchStatus
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
+import com.pranavshukla.yaad.ui.designsystem.LocalFirstDayOfWeek
 import com.pranavshukla.yaad.ui.designsystem.components.DueStatus
 import com.pranavshukla.yaad.ui.designsystem.components.ItemCard
 import com.pranavshukla.yaad.ui.designsystem.components.dateText
@@ -109,6 +110,8 @@ private fun CalendarView(state: RemindersState, onOpen: (AgendaItem) -> Unit, on
     var selected by remember { mutableStateOf(today) }
     val days = remember(state, month) { Agenda.month(state.reminders, state.history, month.year, month.month.number, state.now, state.zone) }
     val monthName = stringArrayResource(Res.array.months_long)[month.month.number - 1]
+    val firstDay = LocalFirstDayOfWeek.current
+    val week = (0..6).map { DayOfWeek.entries[(firstDay.ordinal + it) % 7] }
     LazyColumn(contentPadding = contentPadding, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -121,13 +124,13 @@ private fun CalendarView(state: RemindersState, onOpen: (AgendaItem) -> Unit, on
         }
         item {
             Row {
-                DayOfWeek.entries.forEach {
+                week.forEach {
                     Text(weekdayName(it, short = true), Modifier.weight(1f), textAlign = TextAlign.Center, style = MaterialTheme.typography.labelMedium)
                 }
             }
         }
         item {
-            val lead = month.dayOfWeek.isoDayNumber - 1
+            val lead = (month.dayOfWeek.isoDayNumber - firstDay.isoDayNumber + 7) % 7
             val length = month.plus(1, DateTimeUnit.MONTH).plus(-1, DateTimeUnit.DAY).day
             Column {
                 for (week in 0 until (lead + length + 6) / 7) {

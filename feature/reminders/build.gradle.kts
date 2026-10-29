@@ -8,6 +8,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.ui.designsystem)
             api(projects.core.scheduling)
+            api(projects.core.recurrence)
             implementation(projects.core.finance)
             api(projects.core.quickadd)
             api(projects.data)

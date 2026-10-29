@@ -3,6 +3,8 @@ package com.pranavshukla.yaad.feature.reminders
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +40,8 @@ import com.pranavshukla.yaad.core.model.Reminder
 import com.pranavshukla.yaad.core.scheduling.Agenda
 import com.pranavshukla.yaad.core.scheduling.AgendaItem
 import com.pranavshukla.yaad.core.scheduling.AlertAction
+import com.pranavshukla.yaad.core.scheduling.HistoryIndex
+import com.pranavshukla.yaad.core.recurrence.zoneOr
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
 import com.pranavshukla.yaad.core.finance.MoneyFormat
@@ -61,8 +65,8 @@ fun ReminderDetail(
     val today = state.now.toLocalDateTime(state.zone).date
     val history = state.historyOf(reminder.id)
     val next = Agenda.nextDue(reminder, state.history, state.now, state.zone)?.let { due ->
-        val status = history.firstOrNull { it.due.toEpochMilliseconds() == due.toEpochMilliseconds() }?.status
-        AgendaItem(reminder, due, status ?: OccurrenceStatus.Pending, due.toLocalDateTime(state.zone).date)
+        val zone = reminder.schedule.zoneOr(state.zone)
+        AgendaItem(reminder, due, HistoryIndex(history).status(reminder, due, zone), due.toLocalDateTime(zone).date)
     }
     var confirmDelete by remember { mutableStateOf(false) }
 
@@ -142,10 +146,12 @@ fun ReminderDetail(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ActionRow(item: AgendaItem, onAct: (AgendaItem, AlertAction) -> Unit) {
     var snoozeMenu by remember { mutableStateOf(false) }
-    Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Wraps rather than squeezing when text is large.
+    FlowRow(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(onClick = { onAct(item, AlertAction.Done) }) { Text(stringResource(Res.string.action_done)) }
         Box {
             OutlinedButton(onClick = { snoozeMenu = true }) { Text(stringResource(Res.string.action_snooze)) }

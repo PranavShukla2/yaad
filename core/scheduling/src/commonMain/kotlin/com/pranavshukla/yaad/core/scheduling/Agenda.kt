@@ -45,7 +45,7 @@ object Agenda {
     private const val upcomingDays = 30
 
     fun build(reminders: List<Reminder>, history: List<Occurrence>, now: Instant, deviceZone: TimeZone): AgendaView {
-        val statuses = history.associate { (it.reminderId to it.due.toEpochMilliseconds()) to it.status }
+        val index = HistoryIndex(history)
         val today = now.toLocalDateTime(deviceZone).date
         val overdue = mutableListOf<AgendaItem>()
         val todays = mutableListOf<AgendaItem>()
@@ -57,7 +57,7 @@ object Agenda {
             val missed = mutableListOf<AgendaItem>()
             for (due in reminder.schedule.occurrencesBetween(from, until, zone)) {
                 val date = due.toLocalDateTime(zone).date
-                val item = AgendaItem(reminder, due, statuses[reminder.id to due.toEpochMilliseconds()] ?: OccurrenceStatus.Pending, date)
+                val item = AgendaItem(reminder, due, index.status(reminder, due, zone), date)
                 val isPast = isOverdue(reminder, due, now, zone)
                 when {
                     isPast && date < today -> if (!item.isHandled && reminder.type !in NeverOverdue) missed += item
@@ -85,12 +85,12 @@ object Agenda {
         now: Instant,
         deviceZone: TimeZone,
     ): Map<LocalDate, List<AgendaItem>> {
-        val statuses = history.associate { (it.reminderId to it.due.toEpochMilliseconds()) to it.status }
+        val index = HistoryIndex(history)
         val first = LocalDate(year, month, 1)
         return reminders.filter { !it.archived }.flatMap { reminder ->
             val zone = reminder.schedule.zoneOr(deviceZone)
             reminder.schedule.occurrencesBetween(first.atStartOfDayIn(zone), first.plus(1, DateTimeUnit.MONTH).atStartOfDayIn(zone), zone).map { due ->
-                AgendaItem(reminder, due, statuses[reminder.id to due.toEpochMilliseconds()] ?: OccurrenceStatus.Pending, due.toLocalDateTime(zone).date)
+                AgendaItem(reminder, due, index.status(reminder, due, zone), due.toLocalDateTime(zone).date)
             }
         }.sortedWith(compareBy<AgendaItem>({ it.due }, { it.reminder.title })).groupBy { it.date }
     }
@@ -104,14 +104,13 @@ object Agenda {
 
     /** The earliest unhandled occurrence, overdue or not (within the last [overdueDays] days), or null if none is left. */
     fun nextDue(reminder: Reminder, history: List<Occurrence>, now: Instant, deviceZone: TimeZone): Instant? {
-        val handled = history.filter { it.reminderId == reminder.id }
-            .filter { it.status is OccurrenceStatus.Done || it.status is OccurrenceStatus.Skipped }
-            .mapTo(HashSet()) { it.due.toEpochMilliseconds() }
+        val index = HistoryIndex(history.filter { it.reminderId == reminder.id })
         val zone = reminder.schedule.zoneOr(deviceZone)
         var cursor = if (reminder.type in NeverOverdue) now - 1.days else now - overdueDays.days
         while (true) {
             val due = reminder.schedule.nextAfter(cursor, zone) ?: return null
-            if (due.toEpochMilliseconds() !in handled) return due
+            val status = index.status(reminder, due, zone)
+            if (status !is OccurrenceStatus.Done && status !is OccurrenceStatus.Skipped) return due
             cursor = due
         }
     }

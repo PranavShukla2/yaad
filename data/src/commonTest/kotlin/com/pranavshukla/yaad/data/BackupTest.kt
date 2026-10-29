@@ -109,7 +109,7 @@ class BackupTest {
     @Test
     fun aVersionOneFileStillRestores() = runTest {
         val v1 = device(StandardTestDispatcher(testScheduler)).apply { reminders.save(birthday) }.backup.export()
-            .replace("\"version\":2", "\"version\":1").replace(",\"loans\":[]", "").replace(",\"loanEvents\":[]", "")
+            .replace("\"version\":3", "\"version\":1").replace(",\"loans\":[]", "").replace(",\"loanEvents\":[]", "")
         val target = device(StandardTestDispatcher(testScheduler))
         target.backup.import(v1)
         assertEquals(listOf(birthday), target.reminders.reminders().first())
@@ -122,7 +122,7 @@ class BackupTest {
         val bad = listOf(
             "not json",
             """{"format":"something-else","version":1}""",
-            good.replace("\"version\":2", "\"version\":99"),
+            good.replace("\"version\":3", "\"version\":99"),
             good.replace("FREQ=YEARLY", "FREQ=SOMETIMES"),
             good.replace("\"Birthday\"", "\"Party\""),
             good.replace(
@@ -140,6 +140,6 @@ class BackupTest {
     @Test
     fun theFileSaysWhatItIs() = runTest {
         val file = device(StandardTestDispatcher(testScheduler)).apply { fill() }.backup.export()
-        assertTrue(file.startsWith("""{"format":"yaad-backup","version":2,"exportedAt":"2026-10-28T10:00:00Z""""), file)
+        assertTrue(file.startsWith("""{"format":"yaad-backup","version":3,"exportedAt":"2026-10-28T10:00:00Z""""), file)
     }
 }

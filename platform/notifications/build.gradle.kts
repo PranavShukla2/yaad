@@ -12,6 +12,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.core.scheduling)
             api(projects.data)
+            implementation(projects.core.finance)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core)

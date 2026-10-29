@@ -87,13 +87,13 @@ class Backup(driver: SqlDriver, private val clock: Clock = Clock.System) {
 
     private companion object {
         const val Format = "yaad-backup"
-        const val Version = 2
+        const val Version = 3
         val json = Json { encodeDefaults = true }
     }
 
     /**
-     * The database rows (see Yaad.sq and Loan.sq) with camelCase names. Version 2 added loans; a version 1 file reads
-     * as one without them.
+     * The database rows (see Yaad.sq and Loan.sq) with camelCase names. Version 2 added loans and version 3 the local
+     * due time of each record; older files read as ones without them.
      */
     @Serializable
     private data class BackupFile(
@@ -139,13 +139,13 @@ private fun Checklist_item.toDto() = ChecklistDto(reminder_id, position, text, d
 @Serializable
 private data class OccurrenceDto(
     val reminderId: String, val dueAt: Long, val status: String, val statusAt: Long, val paidMinor: Long?,
-    val paidCurrency: String?, val paidMinorDigits: Long?, val note: String,
+    val paidCurrency: String?, val paidMinorDigits: Long?, val note: String, val dueLocal: String? = null,
 ) {
-    fun toRow() = Occurrence(reminderId, dueAt, status, statusAt, paidMinor, paidCurrency, paidMinorDigits, note)
+    fun toRow() = Occurrence(reminderId, dueAt, status, statusAt, paidMinor, paidCurrency, paidMinorDigits, note, dueLocal)
 }
 
 private fun Occurrence.toDto() =
-    OccurrenceDto(reminder_id, due_at, status, status_at, paid_minor, paid_currency, paid_minor_digits, note)
+    OccurrenceDto(reminder_id, due_at, status, status_at, paid_minor, paid_currency, paid_minor_digits, note, due_local)
 
 @Serializable
 private data class CategoryDto(val id: String, val name: String, val color: Long?) {

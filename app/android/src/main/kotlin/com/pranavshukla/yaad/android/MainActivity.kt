@@ -5,22 +5,57 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.pranavshukla.yaad.app.AlertAccess
 import com.pranavshukla.yaad.app.App
+import com.pranavshukla.yaad.app.BackupHost
+import com.pranavshukla.yaad.feature.settings.SettingsCapabilities
+import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+/** A FragmentActivity because the biometric prompt needs one. */
+class MainActivity : FragmentActivity() {
     private val notifications get() = (application as YaadApplication).notifications
     private val access = mutableStateOf(AlertAccess())
+    private val locked = mutableStateOf(false)
+    private var lockOn = false
+    private var prompting = false
 
     private val askForNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         refreshAccess()
+    }
+
+    // Backups go through the system's own save and open dialogs, so Yaad needs no storage permission.
+    private var pendingBackup: String? = null
+    private var onBackupOpened: ((String) -> Unit)? = null
+    private val saveBackup = registerForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+        val content = pendingBackup
+        pendingBackup = null
+        if (uri != null && content != null) contentResolver.openOutputStream(uri)?.use { it.write(content.encodeToByteArray()) }
+    }
+    private val openBackup = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val text = uri?.let { contentResolver.openInputStream(it)?.use { input -> input.readBytes().decodeToString() } }
+        if (text != null) onBackupOpened?.invoke(text)
+    }
+    private val backupHost = object : BackupHost {
+        override fun save(fileName: String, content: String) {
+            pendingBackup = content
+            saveBackup.launch(fileName)
+        }
+
+        override fun open(onOpened: (String) -> Unit) {
+            onBackupOpened = onOpened
+            openBackup.launch(arrayOf("*/*"))
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,15 +63,79 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val app = application as YaadApplication
-        setContent { App(app.reminders, app.loans, access.value, ::fixAccess) }
+        // The lock follows the setting: locked at launch when it is on, and whenever it is turned off, unlocked.
+        lifecycleScope.launch {
+            var first = true
+            app.preferences.settings().collect { settings ->
+                lockOn = settings.appLock
+                if (!lockOn) {
+                    locked.value = false
+                } else if (first) {
+                    locked.value = true
+                    if (lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) unlock()
+                }
+                first = false
+            }
+        }
+        setContent {
+            App(
+                app.reminders, app.loans, app.preferences, access.value, ::fixAccess,
+                capabilities = SettingsCapabilities(canLock = canLock()),
+                onSettingsChanged = { app.notifications.requestSync() },
+                backup = app.backup,
+                backupHost = backupHost,
+                locked = locked.value,
+                onUnlock = ::unlock,
+            )
+        }
         if (savedInstanceState == null && needsNotificationPermission()) {
             askForNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (lockOn) locked.value = true
+    }
+
     override fun onResume() {
         super.onResume()
         refreshAccess()
+        // The prompt can only be shown once the activity is resumed.
+        if (lockOn && locked.value) unlock()
+    }
+
+    private fun canLock() = BiometricManager.from(this).canAuthenticate(Authenticators) == BiometricManager.BIOMETRIC_SUCCESS
+
+    /** Fingerprint, face or the device PIN, whichever the user has set up. */
+    private fun unlock() {
+        if (prompting) return
+        if (!canLock()) {
+            // The screen lock was removed since the app lock was turned on: nothing can verify the user.
+            locked.value = false
+            return
+        }
+        val prompt = BiometricPrompt(this, ContextCompat.getMainExecutor(this), object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                prompting = false
+                locked.value = false
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                prompting = false
+            }
+        })
+        prompting = true
+        prompt.authenticate(
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle(getString(R.string.unlock_title))
+                .setAllowedAuthenticators(Authenticators)
+                .build(),
+        )
+    }
+
+    private companion object {
+        const val Authenticators = BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL
     }
 
     private fun refreshAccess() {

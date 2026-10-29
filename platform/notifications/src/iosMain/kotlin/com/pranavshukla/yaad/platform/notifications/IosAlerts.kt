@@ -36,13 +36,16 @@ internal class IosAlerts : PlatformAlerts {
     private val center = UNUserNotificationCenter.currentNotificationCenter()
     private val defaults = NSUserDefaults.standardUserDefaults
 
+    /** Keeps amounts off notifications, which show on the lock screen. */
+    var hideAmounts = false
+
     @Suppress("UNCHECKED_CAST")
     override fun scheduledIds(): Set<String> = (defaults.stringArrayForKey(Ids) as List<String>?).orEmpty().toSet()
 
     override fun schedule(alert: Alert, reminder: Reminder) {
         val content = UNMutableNotificationContent().apply {
             setTitle(reminder.title)
-            setBody(bodyFor(reminder, alert))
+            setBody(withAmount(bodyFor(reminder, alert), reminder, hideAmounts))
             setCategoryIdentifier(Category)
             setThreadIdentifier(alert.occurrenceKey)
             setSound(UNNotificationSound.defaultSound)

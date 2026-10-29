@@ -28,6 +28,8 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v6
+      - name: Every string has Hindi
+        run: python3 tools/i18n/check_hindi.py
       - name: Check
         run: ./gradlew check :app:android:assembleDebug :app:desktop:jar
       - name: Upload screenshots

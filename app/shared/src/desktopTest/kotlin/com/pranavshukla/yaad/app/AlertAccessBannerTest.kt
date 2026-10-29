@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 class AlertAccessBannerTest {
     @Test
     fun noBannerWhenEverythingIsAllowed() = runComposeUiTest {
-        setContent { TestApp().let { app -> App(app.reminders, app.loans, alertAccess = AlertAccess()) } }
+        setContent { TestApp().let { app -> App(app.reminders, app.loans, app.preferences, alertAccess = AlertAccess()) } }
         onNodeWithText("Notifications are off", substring = true).assertDoesNotExist()
         onNodeWithText("a few minutes late", substring = true).assertDoesNotExist()
     }
@@ -19,7 +19,7 @@ class AlertAccessBannerTest {
     @Test
     fun notificationsOffAsksToTurnThemOn() = runComposeUiTest {
         var asked = 0
-        setContent { TestApp().let { app -> App(app.reminders, app.loans, alertAccess = AlertAccess(notifications = false), onFixAlertAccess = { asked++ }) } }
+        setContent { TestApp().let { app -> App(app.reminders, app.loans, app.preferences, alertAccess = AlertAccess(notifications = false), onFixAlertAccess = { asked++ }) } }
         onNodeWithText("Notifications are off", substring = true).assertExists()
         onNodeWithText("Turn on").performClick()
         assertEquals(1, asked)
@@ -28,7 +28,7 @@ class AlertAccessBannerTest {
     @Test
     fun noExactAlarmsSaysRemindersMayBeLate() = runComposeUiTest {
         var asked = 0
-        setContent { TestApp().let { app -> App(app.reminders, app.loans, alertAccess = AlertAccess(exactAlarms = false), onFixAlertAccess = { asked++ }) } }
+        setContent { TestApp().let { app -> App(app.reminders, app.loans, app.preferences, alertAccess = AlertAccess(exactAlarms = false), onFixAlertAccess = { asked++ }) } }
         onNodeWithText("a few minutes late", substring = true).assertExists()
         onNodeWithText("Allow").performClick()
         assertEquals(1, asked)

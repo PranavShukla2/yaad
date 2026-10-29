@@ -7,8 +7,11 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.runtime.remember
 import com.pranavshukla.yaad.app.App
+import com.pranavshukla.yaad.app.BackupHost
+import com.pranavshukla.yaad.data.Backup
 import com.pranavshukla.yaad.data.DatabaseFactory
 import com.pranavshukla.yaad.data.LoanStore
+import com.pranavshukla.yaad.data.PreferenceStore
 import com.pranavshukla.yaad.data.ReminderStore
 import com.pranavshukla.yaad.feature.loans.LoansModel
 import com.pranavshukla.yaad.feature.reminders.RemindersModel
@@ -23,12 +26,26 @@ fun main() = application {
     val store = remember { ReminderStore(driver) }
     val reminders = remember { RemindersModel(store, scope) }
     val loans = remember { LoansModel(LoanStore(driver), store, scope) }
+    val preferences = remember { PreferenceStore(driver) }
     Window(
         onCloseRequest = ::exitApplication,
         state = rememberWindowState(size = DpSize(820.dp, 1000.dp)),
         title = "Yaad",
     ) {
         window.minimumSize = java.awt.Dimension(360, 600)
-        App(reminders, loans)
+        App(reminders, loans, preferences, backup = remember { Backup(driver) }, backupHost = DesktopBackupHost)
+    }
+}
+
+/** Backups through the desktop's file choosers. */
+private object DesktopBackupHost : BackupHost {
+    override fun save(fileName: String, content: String) {
+        val chooser = javax.swing.JFileChooser().apply { selectedFile = java.io.File(fileName) }
+        if (chooser.showSaveDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) chooser.selectedFile.writeText(content)
+    }
+
+    override fun open(onOpened: (String) -> Unit) {
+        val chooser = javax.swing.JFileChooser()
+        if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) onOpened(chooser.selectedFile.readText())
     }
 }

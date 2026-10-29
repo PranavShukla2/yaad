@@ -1,0 +1,186 @@
+<resources>
+    <string name="section_overdue">बकाया</string>
+    <string name="section_today">आज</string>
+    <string name="empty_today_title">आज कुछ बाकी नहीं</string>
+    <string name="empty_today_message">+ बटन से रिमाइंडर जोड़ें।</string>
+    <string name="empty_upcoming_title">अगले 30 दिन में कुछ नहीं</string>
+    <string name="empty_upcoming_message">आने वाले रिमाइंडर यहाँ दिन के हिसाब से दिखेंगे।</string>
+    <string name="select_reminder">विवरण देखने के लिए कोई रिमाइंडर चुनें।</string>
+    <string name="day_today">आज</string>
+    <string name="day_tomorrow">कल</string>
+    <string name="day_yesterday">बीता कल</string>
+    <string name="day_and_time">%1$s, %2$s</string>
+    <string name="all_day">पूरा दिन</string>
+    <string-array name="weekdays">
+        <item>सोमवार</item>
+        <item>मंगलवार</item>
+        <item>बुधवार</item>
+        <item>गुरुवार</item>
+        <item>शुक्रवार</item>
+        <item>शनिवार</item>
+        <item>रविवार</item>
+    </string-array>
+    <string-array name="weekdays_short">
+        <item>सोम</item>
+        <item>मंगल</item>
+        <item>बुध</item>
+        <item>गुरु</item>
+        <item>शुक्र</item>
+        <item>शनि</item>
+        <item>रवि</item>
+    </string-array>
+    <string name="repeat_none">दोहराता नहीं</string>
+    <string name="repeat_minutes">हर %1$d मिनट</string>
+    <string name="repeat_hours">हर %1$d घंटे</string>
+    <string name="repeat_daily">हर दिन</string>
+    <string name="repeat_days">हर %1$d दिन</string>
+    <string name="repeat_weekly">हर हफ़्ते</string>
+    <string name="repeat_weeks">हर %1$d हफ़्ते</string>
+    <string name="repeat_on">%1$s, %2$s को</string>
+    <string name="repeat_monthly">हर महीने</string>
+    <string name="repeat_months">हर %1$d महीने</string>
+    <string name="repeat_yearly">हर साल</string>
+    <string name="repeat_years">हर %1$d साल</string>
+    <string name="monthly_day">दिन %1$d</string>
+    <string name="monthly_last_day">आख़िरी दिन</string>
+    <string name="monthly_nth">%1$s %2$s</string>
+    <string-array name="ordinals">
+        <item>पहले</item>
+        <item>दूसरे</item>
+        <item>तीसरे</item>
+        <item>चौथे</item>
+    </string-array>
+    <string name="ordinal_last">आख़िरी</string>
+    <string name="ends_after">, %1$d बार</string>
+    <string name="ends_on">, %1$s तक</string>
+    <string name="before_minutes">%1$d मिनट पहले</string>
+    <string name="before_hours">%1$d घंटे पहले</string>
+    <string name="before_days">%1$d दिन पहले</string>
+    <string name="before_day">1 दिन पहले</string>
+    <string name="nag_every">पूरा होने तक हर %1$d मिनट याद दिलाएँ</string>
+    <string name="action_done">हो गया</string>
+    <string name="action_skip">छोड़ें</string>
+    <string name="action_snooze">बाद में</string>
+    <string name="action_undo">वापस लें</string>
+    <string name="snooze_10">10 मिनट</string>
+    <string name="snooze_60">1 घंटा</string>
+    <string name="snooze_tomorrow">कल सुबह</string>
+    <string name="mark_done">%1$s हो गया चिह्नित करें</string>
+    <string name="edit">बदलें</string>
+    <string name="delete">हटाएँ</string>
+    <string name="back">पीछे</string>
+    <string name="next_due">अगला: %1$s</string>
+    <string name="no_more">अब और नहीं</string>
+    <string name="auto_pay">अपने आप भुगतान: याद पूछेगा कि भुगतान हुआ या नहीं</string>
+    <string name="checklist">चेकलिस्ट</string>
+    <string name="history">इतिहास</string>
+    <string name="no_history">अभी कुछ पूरा या छोड़ा नहीं गया।</string>
+    <string name="status_done_on">हो गया · देय %1$s</string>
+    <string name="status_skipped_on">छोड़ा · देय %1$s</string>
+    <string name="status_snoozed_on">टाला · देय %1$s</string>
+    <string name="delete_title">यह रिमाइंडर हटाएँ?</string>
+    <string name="delete_message">इसका इतिहास भी हट जाएगा।</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="new_reminder">नया रिमाइंडर</string>
+    <string name="edit_reminder">रिमाइंडर बदलें</string>
+    <string name="save">सेव करें</string>
+    <string name="field_title">क्या याद रखना है</string>
+    <string name="field_notes">नोट</string>
+    <string name="field_date">तारीख़</string>
+    <string name="field_time">समय</string>
+    <string name="field_all_day">पूरा दिन</string>
+    <string name="field_repeat">दोहराएँ</string>
+    <string name="field_every">हर</string>
+    <string name="field_on_days">किन दिनों</string>
+    <string name="field_ends">कब तक</string>
+    <string name="field_times">कितनी बार</string>
+    <string name="field_early">पहले से याद दिलाएँ</string>
+    <string name="field_nag">पूरा होने तक याद दिलाते रहें</string>
+    <string name="field_category">श्रेणी</string>
+    <string name="field_priority">प्राथमिकता</string>
+    <string name="field_checklist">चेकलिस्ट</string>
+    <string name="add_item">आइटम जोड़ें</string>
+    <string name="remove_item">%1$s हटाएँ</string>
+    <string name="ok">ठीक है</string>
+    <string name="off">बंद</string>
+    <string name="category_none">कोई नहीं</string>
+    <string name="minutes_short">%1$d मिनट</string>
+    <string name="kind_none">कभी नहीं</string>
+    <string name="kind_minutes">मिनट</string>
+    <string name="kind_hours">घंटे</string>
+    <string name="kind_daily">रोज़</string>
+    <string name="kind_weekly">हफ़्तेवार</string>
+    <string name="kind_monthly">महीनेवार</string>
+    <string name="kind_yearly">सालाना</string>
+    <string name="end_never">कभी नहीं</string>
+    <string name="end_on_date">किसी तारीख़ को</string>
+    <string name="end_after">कुछ बार के बाद</string>
+    <string name="priority_low">कम</string>
+    <string name="priority_normal">सामान्य</string>
+    <string name="priority_high">ज़रूरी</string>
+    <string name="category_money">पैसा</string>
+    <string name="category_health">सेहत</string>
+    <string name="category_personal">निजी</string>
+    <string name="category_work">काम</string>
+    <string name="category_home">घर</string>
+    <string name="category_vehicle">गाड़ी</string>
+    <string name="early_15m">15 मिनट</string>
+    <string name="early_1h">1 घंटा</string>
+    <string name="early_1d">1 दिन</string>
+    <string name="early_3d">3 दिन</string>
+    <string name="early_1w">1 हफ़्ता</string>
+    <string name="add_title">जोड़ें</string>
+    <string name="life_reminder">रिमाइंडर</string>
+    <string name="life_birthday">जन्मदिन</string>
+    <string name="life_anniversary">सालगिरह</string>
+    <string name="life_medicine">दवा</string>
+    <string name="life_document">दस्तावेज़ की समाप्ति (पासपोर्ट, लाइसेंस…)</string>
+    <string name="life_warranty">वारंटी</string>
+    <string name="life_appointment">अपॉइंटमेंट</string>
+    <string name="field_name">नाम</string>
+    <string name="field_born">जन्म तिथि: %1$s</string>
+    <string name="field_married">शादी की तारीख़: %1$s</string>
+    <string name="field_expires">%1$s को समाप्त</string>
+    <string name="field_bought">%1$s को ख़रीदा</string>
+    <string name="field_warranty_months">वारंटी (महीने)</string>
+    <string name="field_on">%1$s को</string>
+    <string name="field_starting">%1$s से शुरू</string>
+    <string name="field_doses">कब लेनी है</string>
+    <string name="dose_morning">सुबह</string>
+    <string name="dose_afternoon">दोपहर</string>
+    <string name="dose_night">रात</string>
+    <string name="field_course">कितने दिन (ख़ाली: लगातार)</string>
+    <string name="field_pills">पैक में गोलियाँ (दोबारा लेने के रिमाइंडर के लिए)</string>
+    <string name="food_before">खाने से पहले</string>
+    <string name="food_after">खाने के बाद</string>
+    <string name="turns">%1$d साल का होगा</string>
+    <string name="quick_add_hint">रिमाइंडर लिखें: kal shaam 7 baje call Ravi</string>
+    <string name="quick_add">जोड़ें</string>
+    <string name="quick_edit">बदलें</string>
+    <string name="understood">ऐसे समझा</string>
+    <string name="no_date">आज</string>
+    <string name="view_list">सूची</string>
+    <string name="view_calendar">कैलेंडर</string>
+    <string name="view_search">खोज</string>
+    <string name="previous_month">पिछला महीना</string>
+    <string name="next_month">अगला महीना</string>
+    <string name="nothing_this_day">इस दिन कुछ नहीं।</string>
+    <string name="search_hint">शीर्षक और नोट में खोजें</string>
+    <string name="no_results">कोई रिमाइंडर नहीं मिला।</string>
+    <string name="show_archived">संग्रहित</string>
+    <string name="items_on">%1$s, %2$d चीज़ें</string>
+    <string-array name="months_long">
+        <item>जनवरी</item>
+        <item>फ़रवरी</item>
+        <item>मार्च</item>
+        <item>अप्रैल</item>
+        <item>मई</item>
+        <item>जून</item>
+        <item>जुलाई</item>
+        <item>अगस्त</item>
+        <item>सितंबर</item>
+        <item>अक्टूबर</item>
+        <item>नवंबर</item>
+        <item>दिसंबर</item>
+    </string-array>
+</resources>

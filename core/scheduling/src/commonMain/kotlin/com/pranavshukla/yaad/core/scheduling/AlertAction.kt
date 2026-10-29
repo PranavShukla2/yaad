@@ -35,5 +35,5 @@ fun AlertAction.toOccurrence(
             OccurrenceStatus.Snoozed(LocalDateTime(tomorrow, morning).toInstant(zone))
         }
     }
-    return Occurrence(reminderId, due, status)
+    return Occurrence(reminderId, due, status, dueLocal = due.toLocalDateTime(zone))
 }

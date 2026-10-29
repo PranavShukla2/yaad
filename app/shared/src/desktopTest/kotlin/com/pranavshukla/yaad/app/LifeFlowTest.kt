@@ -59,7 +59,7 @@ class LifeFlowTest {
     @Test
     fun aMedicineNagsUntilTaken() = runComposeUiTest {
         val app = TestApp(::replan)
-        setContent { Box(Modifier.requiredSize(1000.dp, 760.dp)) { App(app.reminders, app.loans) } }
+        setContent { Box(Modifier.requiredSize(1000.dp, 760.dp)) { App(app.reminders, app.loans, app.preferences) } }
         onNodeWithContentDescription("Add reminder").performClick()
         onNodeWithText("Medicine").performClick()
         onNode(hasSetTextAction() and hasText("Name")).performTextInput("Vitamin D")
@@ -84,7 +84,7 @@ class LifeFlowTest {
         val soon = today.plus(5, DateTimeUnit.DAY)
         val born = LocalDate(soon.year - 30, soon.month, soon.day)
         app.reminders.save(LifeTemplates.birthday(app.reminders.newId(), "Asha", born))
-        setContent { Box(Modifier.requiredSize(1000.dp, 760.dp)) { App(app.reminders, app.loans) } }
+        setContent { Box(Modifier.requiredSize(1000.dp, 760.dp)) { App(app.reminders, app.loans, app.preferences) } }
         onNodeWithText("Upcoming").performClick()
         waitFor("Turns 30")
     }

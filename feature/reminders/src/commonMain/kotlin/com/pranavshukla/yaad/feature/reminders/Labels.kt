@@ -9,6 +9,7 @@ import com.pranavshukla.yaad.core.scheduling.DayLabel
 import com.pranavshukla.yaad.core.scheduling.TimeLabel
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
+import com.pranavshukla.yaad.ui.designsystem.LocalTwentyFourHour
 import com.pranavshukla.yaad.ui.designsystem.components.dateText
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -38,7 +39,7 @@ internal fun dayText(date: LocalDate, today: LocalDate): String = when (val labe
 
 /** "Today, 7:00 PM", "Fri, 9:00 AM", "4 Nov" (all-day). */
 @Composable
-internal fun dueText(due: Instant, allDay: Boolean, now: Instant, zone: TimeZone, twentyFourHour: Boolean = false): String {
+internal fun dueText(due: Instant, allDay: Boolean, now: Instant, zone: TimeZone, twentyFourHour: Boolean = LocalTwentyFourHour.current): String {
     val local = due.toLocalDateTime(zone)
     val day = dayText(local.date, now.toLocalDateTime(zone).date)
     return if (allDay) day else stringResource(Res.string.day_and_time, day, TimeLabel.format(local.time, twentyFourHour))

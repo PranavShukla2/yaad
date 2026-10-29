@@ -41,6 +41,7 @@ CREATE TABLE occurrence (
     paid_currency TEXT,
     paid_minor_digits INTEGER,
     note TEXT NOT NULL DEFAULT '',
+    due_local TEXT,
     PRIMARY KEY (reminder_id, due_at)
 );
 

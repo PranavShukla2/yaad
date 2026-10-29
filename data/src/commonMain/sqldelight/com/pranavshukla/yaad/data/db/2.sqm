@@ -1,0 +1,2 @@
+-- Version 2 to 3: the local time each occurrence was due, so records follow reminders across time zones.
+ALTER TABLE occurrence ADD COLUMN due_local TEXT;

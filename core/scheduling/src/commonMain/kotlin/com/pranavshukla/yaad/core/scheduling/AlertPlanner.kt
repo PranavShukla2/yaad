@@ -10,6 +10,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -21,9 +22,11 @@ import kotlin.time.Instant
  * @property horizon how far ahead to plan; platforms re-plan well before it runs out.
  * @property limit at most this many alerts, the earliest first (iOS keeps 64 pending notifications).
  * @property maxNagsPerOccurrence a cap on repeated alerts for one occurrence.
+ * @property quietHours alerts that fall inside them wait until they end, except for high-priority items.
  */
 data class PlanSettings(
     val allDayTime: LocalTime = LocalTime(9, 0),
+    val quietHours: QuietHours? = null,
     val horizon: Duration = 10.days,
     val limit: Int = Int.MAX_VALUE,
     val maxNagsPerOccurrence: Int = 48,
@@ -50,8 +53,7 @@ object AlertPlanner {
         deviceZone: TimeZone,
         settings: PlanSettings = PlanSettings(),
     ): List<Alert> {
-        // History is stored to the millisecond, so match occurrences at that precision.
-        val statuses = history.associate { (it.reminderId to it.due.toEpochMilliseconds()) to it.status }
+        val index = HistoryIndex(history)
         val until = now + settings.horizon
         return reminders.asSequence()
             .filter { !it.archived }
@@ -59,10 +61,11 @@ object AlertPlanner {
                 val zone = reminder.schedule.zoneOr(deviceZone)
                 // Look back far enough to keep nagging about recent missed occurrences.
                 reminder.schedule.occurrencesBetween(now - NagWindow - 1.days, until, zone).asSequence().flatMap { due ->
-                    val status = statuses[reminder.id to due.toEpochMilliseconds()] ?: OccurrenceStatus.Pending
+                    val status = index.status(reminder, due, zone)
                     alertsFor(reminder, due, status, zone, settings)
                 }
             }
+            .map { alert -> settings.quietHours?.let { quiet -> quiet.defer(alert, reminders, deviceZone) } ?: alert }
             .filter { it.fireAt > now && it.fireAt <= until }
             .distinctBy { it.id }
             .sortedWith(compareBy<Alert>({ it.fireAt }, { it.id }))
@@ -120,5 +123,22 @@ object AlertPlanner {
             at += nag
             count++
         }
+    }
+}
+
+/** A daily span when alerts wait, such as 22:00 to 07:00 (it may cross midnight). */
+data class QuietHours(val start: LocalTime, val end: LocalTime) {
+    fun contains(time: LocalTime): Boolean =
+        if (start <= end) time >= start && time < end else time >= start || time < end
+
+    /** Moves [alert] to the end of quiet hours if it falls inside them and is not for a high-priority reminder. */
+    internal fun defer(alert: Alert, reminders: List<Reminder>, deviceZone: TimeZone): Alert {
+        val reminder = reminders.firstOrNull { it.id == alert.reminderId } ?: return alert
+        if (reminder.priority == com.pranavshukla.yaad.core.model.Priority.High) return alert
+        val zone = reminder.schedule.zoneOr(deviceZone)
+        val local = alert.fireAt.toLocalDateTime(zone)
+        if (!contains(local.time)) return alert
+        val endDay = if (start > end && local.time >= start) local.date.plus(1, kotlinx.datetime.DateTimeUnit.DAY) else local.date
+        return alert.copy(fireAt = LocalDateTime(endDay, end).toInstant(zone))
     }
 }
