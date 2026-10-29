@@ -128,4 +128,31 @@
     <string name="early_1d">1 day</string>
     <string name="early_3d">3 days</string>
     <string name="early_1w">1 week</string>
+
+    <!-- Life templates -->
+    <string name="add_title">Add</string>
+    <string name="life_reminder">Reminder</string>
+    <string name="life_birthday">Birthday</string>
+    <string name="life_anniversary">Anniversary</string>
+    <string name="life_medicine">Medicine</string>
+    <string name="life_document">Document expiry (passport, licence…)</string>
+    <string name="life_warranty">Warranty</string>
+    <string name="life_appointment">Appointment</string>
+    <string name="field_name">Name</string>
+    <string name="field_born">Date of birth: %1$s</string>
+    <string name="field_married">Wedding date: %1$s</string>
+    <string name="field_expires">Expires on %1$s</string>
+    <string name="field_bought">Bought on %1$s</string>
+    <string name="field_warranty_months">Warranty (months)</string>
+    <string name="field_on">On %1$s</string>
+    <string name="field_starting">Starting %1$s</string>
+    <string name="field_doses">When to take it</string>
+    <string name="dose_morning">Morning</string>
+    <string name="dose_afternoon">Afternoon</string>
+    <string name="dose_night">Night</string>
+    <string name="field_course">For how many days (blank: ongoing)</string>
+    <string name="field_pills">Tablets in the pack (for a refill reminder)</string>
+    <string name="food_before">Before food</string>
+    <string name="food_after">After food</string>
+    <string name="turns">Turns %1$d</string>
 </resources>

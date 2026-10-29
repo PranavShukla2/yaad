@@ -22,6 +22,7 @@ import com.pranavshukla.yaad.feature.reminders.resources.empty_upcoming_title
 import com.pranavshukla.yaad.feature.reminders.resources.mark_done
 import com.pranavshukla.yaad.feature.reminders.resources.section_overdue
 import com.pranavshukla.yaad.feature.reminders.resources.section_today
+import com.pranavshukla.yaad.feature.reminders.resources.turns
 import com.pranavshukla.yaad.ui.designsystem.components.DueStatus
 import com.pranavshukla.yaad.ui.designsystem.components.EmptyState
 import com.pranavshukla.yaad.ui.designsystem.components.ItemCard
@@ -100,7 +101,8 @@ internal fun AgendaRow(item: AgendaItem, state: RemindersState, onOpen: () -> Un
         dueText = dueText(item.due, item.reminder.allDay, state.now, state.zone),
         status = status,
         onClick = onOpen,
-        supportingText = item.reminder.schedule.rule?.let { ruleText(it, today) },
+        supportingText = yearsOn(item.reminder, item.date)?.let { stringResource(Res.string.turns, it) }
+            ?: item.reminder.schedule.rule?.let { ruleText(it, today) },
         trailing = {
             IconButton(onClick = onToggleDone) {
                 Icon(

@@ -310,7 +310,7 @@ private fun <T> Chips(options: List<T>, selected: T, onSelect: (T) -> Unit, labe
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DateDialog(initial: LocalDate, onPick: (LocalDate) -> Unit, onDismiss: () -> Unit) {
+internal fun DateDialog(initial: LocalDate, onPick: (LocalDate) -> Unit, onDismiss: () -> Unit) {
     // The Material date picker works in UTC milliseconds at midnight.
     val picker = rememberDatePickerState(initialSelectedDateMillis = initial.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds())
     DatePickerDialog(
@@ -326,7 +326,7 @@ private fun DateDialog(initial: LocalDate, onPick: (LocalDate) -> Unit, onDismis
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TimeDialog(initial: LocalTime, onPick: (LocalTime) -> Unit, onDismiss: () -> Unit) {
+internal fun TimeDialog(initial: LocalTime, onPick: (LocalTime) -> Unit, onDismiss: () -> Unit) {
     val picker = rememberTimePickerState(initial.hour, initial.minute, is24Hour = false)
     AlertDialog(
         onDismissRequest = onDismiss,
