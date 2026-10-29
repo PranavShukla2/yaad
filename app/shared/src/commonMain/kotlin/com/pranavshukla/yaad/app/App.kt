@@ -131,7 +131,7 @@ fun App(
                 items = tabs.mapIndexed { i, tab -> NavItem(stringResource(tab.label), icons[i]) },
                 selectedIndex = selected,
                 onSelect = { selected = it; pane = Pane.None; moneyPane = MoneyPaneState.None },
-                floatingAction = if (twoPane || (pane == Pane.None && moneyPane == MoneyPaneState.None)) {
+                floatingAction = if (tabs[selected] != Tab.Settings && (twoPane || (pane == Pane.None && moneyPane == MoneyPaneState.None))) {
                     {
                         FloatingActionButton(onClick = {
                             if (tabs[selected] == Tab.Money) {
