@@ -3,6 +3,7 @@ package com.pranavshukla.yaad.feature.reminders
 import com.pranavshukla.yaad.core.model.ReminderId
 import com.pranavshukla.yaad.core.model.ReminderType
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,5 +36,14 @@ class LifeFormTest {
         assertNull(LifeForm(LifeKind.Medicine, name = "X", date = date, doses = emptySet()).toReminders(id))
         assertNull(LifeForm(LifeKind.Warranty, name = "TV", date = date, months = "").toReminders(id))
         assertNull(LifeForm(LifeKind.Medicine, name = "X", date = date, courseDays = "abc").toReminders(id))
+    }
+
+    @Test
+    fun dosesAlreadyPastWhenAddedStartTomorrow() {
+        // Found on the emulator: a medicine added at 3 PM started nagging about that morning's dose.
+        val form = LifeForm(LifeKind.Medicine, name = "Metformin", date = date, doses = setOf(Dose.Morning, Dose.Night))
+        val reminders = form.toReminders(id, addedAt = LocalDateTime(2026, 10, 28, 15, 0))!!
+        assertEquals(LocalDateTime(2026, 10, 29, 8, 0), reminders[0].schedule.start)
+        assertEquals(LocalDateTime(2026, 10, 28, 21, 0), reminders[1].schedule.start)
     }
 }

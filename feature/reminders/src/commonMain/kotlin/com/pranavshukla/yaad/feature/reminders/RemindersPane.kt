@@ -84,7 +84,7 @@ fun RemindersPane(
                         today = state.now.toLocalDateTime(state.zone).date,
                         onSave = { form ->
                             val id = model.newId()
-                            form.toReminders(id)?.forEach(model::save)
+                            form.toReminders(id, state.now.toLocalDateTime(state.zone))?.forEach(model::save)
                             onPane(Pane.Detail(id))
                         },
                         onCancel = { onPane(Pane.None) },
