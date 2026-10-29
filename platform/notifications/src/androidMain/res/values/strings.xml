@@ -9,6 +9,7 @@
     <string name="channel_vehicle">Vehicle</string>
     <string name="due_at">Due %1$s</string>
     <string name="due_now">Due now, %1$s</string>
+    <string name="auto_pay_check">Auto-pay: check it went through, %1$s</string>
     <string name="still_due">Still due, %1$s</string>
     <string name="snoozed">Snoozed, due %1$s</string>
     <string name="action_done">Done</string>

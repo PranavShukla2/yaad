@@ -48,7 +48,7 @@ internal class Notifier(private val context: Context) {
         val text = context.getString(
             when (kind) {
                 AlertKind.Early -> R.string.due_at
-                AlertKind.Due -> R.string.due_now
+                AlertKind.Due -> if (reminder.autoPay) R.string.auto_pay_check else R.string.due_now
                 AlertKind.Nag -> R.string.still_due
                 AlertKind.Snoozed -> R.string.snoozed
             },

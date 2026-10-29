@@ -281,7 +281,7 @@ private fun kindLabel(kind: RepeatKind): String = stringResource(
 )
 
 @Composable
-internal fun categoryLabel(category: BuiltInCategory): String = stringResource(
+fun categoryLabel(category: BuiltInCategory): String = stringResource(
     when (category) {
         BuiltInCategory.Money -> Res.string.category_money
         BuiltInCategory.Health -> Res.string.category_health
