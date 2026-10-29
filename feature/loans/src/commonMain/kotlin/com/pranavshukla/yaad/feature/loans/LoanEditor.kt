@@ -40,6 +40,7 @@ import com.pranavshukla.yaad.core.model.LoanKind
 import com.pranavshukla.yaad.feature.loans.resources.Res
 import com.pranavshukla.yaad.feature.loans.resources.*
 import com.pranavshukla.yaad.ui.designsystem.components.AmountText
+import com.pranavshukla.yaad.ui.designsystem.components.dateText
 import com.pranavshukla.yaad.ui.designsystem.icons.YaadIcons
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -98,7 +99,7 @@ fun LoanEditor(
             }
             Choice(listOf(true to Res.string.years, false to Res.string.months), form.tenureInYears) { form = form.copy(tenureInYears = it) }
             OutlinedButton(onClick = { pickDate = true }) {
-                Text(stringResource(Res.string.field_first_emi, form.firstEmiDate.toString()))
+                Text(stringResource(Res.string.field_first_emi, dateText(form.firstEmiDate, initial.firstEmiDate)))
             }
             NumberField(form.bankEmi, { form = form.copy(bankEmi = it) }, Res.string.field_bank_emi, decimal = true)
             form.previewEmi(currency)?.let {

@@ -15,7 +15,8 @@
     <string name="interest_saved">Interest saved by part-payments</string>
     <string name="schedule">Schedule</string>
     <string name="instalment_row">%1$d · %2$s</string>
-    <string name="interest_principal">Interest %1$s · principal %2$s · left %3$s</string>
+    <string name="interest_principal">Interest %1$s · principal %2$s</string>
+    <string name="balance_left">%1$s · %2$s left</string>
     <string name="prepaid_row">Part-payment %1$s</string>
     <string name="status_paid">Paid</string>
     <string name="status_due">Due</string>

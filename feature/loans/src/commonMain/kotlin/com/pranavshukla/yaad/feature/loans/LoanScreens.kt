@@ -44,6 +44,8 @@ import com.pranavshukla.yaad.ui.designsystem.components.DueStatus
 import com.pranavshukla.yaad.ui.designsystem.components.EmptyState
 import com.pranavshukla.yaad.ui.designsystem.components.SectionHeader
 import com.pranavshukla.yaad.ui.designsystem.components.StatusBadge
+import com.pranavshukla.yaad.ui.designsystem.components.dateText
+import kotlinx.datetime.LocalDate
 import com.pranavshukla.yaad.ui.designsystem.icons.YaadIcons
 import org.jetbrains.compose.resources.stringResource
 
@@ -124,6 +126,7 @@ fun LoanDetail(
     onTogglePaid: (Int) -> Unit,
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
+    yearShownAfter: LocalDate = view.schedule.instalments.first().date,
 ) {
     var dialog by remember { mutableStateOf<LoanDialog?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
@@ -160,7 +163,7 @@ fun LoanDetail(
             HorizontalDivider(Modifier.padding(top = 16.dp))
             SectionHeader(stringResource(Res.string.schedule), Modifier.padding(horizontal = 20.dp))
         }
-        items(view.tracked, key = { it.instalment.number }) { row -> ScheduleRow(row, onToggle = { onTogglePaid(row.instalment.number) }) }
+        items(view.tracked, key = { it.instalment.number }) { row -> ScheduleRow(row, yearShownAfter, onToggle = { onTogglePaid(row.instalment.number) }) }
     }
 
     when (dialog) {
@@ -191,7 +194,7 @@ private fun Figure(label: String, value: String) {
 }
 
 @Composable
-private fun ScheduleRow(row: TrackedInstalment, onToggle: () -> Unit) {
+private fun ScheduleRow(row: TrackedInstalment, yearShownAfter: LocalDate, onToggle: () -> Unit) {
     val i = row.instalment
     val paid = row.status == InstalmentStatus.Paid
     Row(
@@ -209,9 +212,12 @@ private fun ScheduleRow(row: TrackedInstalment, onToggle: () -> Unit) {
                     },
                 )
             }
-            Text("${i.date}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             AmountText(
-                stringResource(Res.string.interest_principal, i.interest.text(), i.principal.text(), i.balance.text()),
+                stringResource(Res.string.balance_left, dateText(i.date, yearShownAfter), i.balance.text()),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            AmountText(
+                stringResource(Res.string.interest_principal, i.interest.text(), i.principal.text()),
                 style = MaterialTheme.typography.bodySmall,
             )
             if (!i.prepaid.isZero) AmountText(stringResource(Res.string.prepaid_row, i.prepaid.text()), style = MaterialTheme.typography.bodySmall)
