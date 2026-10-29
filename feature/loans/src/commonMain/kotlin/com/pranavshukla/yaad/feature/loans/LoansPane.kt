@@ -35,9 +35,7 @@ fun LoansPane(
     contentPadding: PaddingValues = PaddingValues(16.dp()),
 ) {
     val state by model.state.collectAsState()
-    // "HDFC EMI", localised; the lender is filled in from the loan as saved.
-    val emiTitle = stringResource(Res.string.emi_title, LenderPlaceholder)
-    val titleFor = { lender: String -> emiTitle.replace(LenderPlaceholder, lender) }
+    val titleFor = rememberEmiTitle()
     BoxWithConstraints(modifier) {
         val twoPane = WidthClass.of(maxWidth).isTwoPane
         BackHandler(enabled = !twoPane && pane != LoanPane.None) {
@@ -74,6 +72,13 @@ fun LoansPane(
             },
         )
     }
+}
+
+/** Names a loan's EMI reminder ("HDFC EMI", localised) from the lender as saved. */
+@Composable
+fun rememberEmiTitle(): (String) -> String {
+    val template = stringResource(Res.string.emi_title, LenderPlaceholder)
+    return { lender -> template.replace(LenderPlaceholder, lender) }
 }
 
 private const val LenderPlaceholder = "{lender}"

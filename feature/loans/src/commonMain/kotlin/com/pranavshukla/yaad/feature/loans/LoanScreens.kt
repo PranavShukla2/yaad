@@ -83,35 +83,38 @@ fun LoansList(
         return
     }
     LazyColumn(modifier, contentPadding = contentPadding, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(state.loans, key = { it.loan.id }) { view ->
-            Card(
-                onClick = { onOpen(view) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-            ) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(view.loan.lender, style = MaterialTheme.typography.titleMedium)
-                            Text(kindLabel(view.loan.kind), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        view.summary.nextPayment?.let {
-                            AmountText(stringResource(Res.string.emi_per_month, it.text()), style = MaterialTheme.typography.titleMedium)
-                        }
-                    }
-                    LinearProgressIndicator(
-                        progress = { view.summary.repaidThousandthsOfPercent / 100_000f },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Row {
-                        Text(
-                            stringResource(Res.string.paid_of, view.summary.paid, view.schedule.instalments.size),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.weight(1f),
-                        )
-                        AmountText(view.summary.outstanding.text(showMinor = false), style = MaterialTheme.typography.bodyMedium)
-                    }
+        items(state.loans, key = { it.loan.id }) { view -> LoanCard(view, onOpen) }
+    }
+}
+
+@Composable
+fun LoanCard(view: LoanView, onOpen: (LoanView) -> Unit, modifier: Modifier = Modifier) {
+    Card(
+        onClick = { onOpen(view) },
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(view.loan.lender, style = MaterialTheme.typography.titleMedium)
+                    Text(kindLabel(view.loan.kind), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+                view.summary.nextPayment?.let {
+                    AmountText(stringResource(Res.string.emi_per_month, it.text()), style = MaterialTheme.typography.titleMedium)
+                }
+            }
+            LinearProgressIndicator(
+                progress = { view.summary.repaidThousandthsOfPercent / 100_000f },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row {
+                Text(
+                    stringResource(Res.string.paid_of, view.summary.paid, view.schedule.instalments.size),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                AmountText(view.summary.outstanding.text(showMinor = false), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
