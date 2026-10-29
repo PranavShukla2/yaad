@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pranavshukla.yaad.core.scheduling.Agenda
 import com.pranavshukla.yaad.core.scheduling.AgendaItem
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.action_undo
@@ -90,7 +91,7 @@ internal fun AgendaRow(item: AgendaItem, state: RemindersState, onOpen: () -> Un
     val today = state.now.toLocalDateTime(state.zone).date
     val status = when {
         item.isHandled -> DueStatus.Done
-        (if (item.reminder.allDay) item.date < today else item.due < state.now) -> DueStatus.Overdue
+        Agenda.isOverdue(item.reminder, item.due, state.now, state.zone) -> DueStatus.Overdue
         item.date == today -> DueStatus.DueToday
         else -> DueStatus.Upcoming
     }

@@ -96,7 +96,7 @@ fun MoneyHome(
                     dueText = next?.let { dateText(it.toLocalDateTime(reminders.zone).date, today) } ?: "",
                     status = when {
                         next == null -> DueStatus.Done
-                        next < reminders.now -> DueStatus.Overdue
+                        Agenda.isOverdue(reminder, next, reminders.now, reminders.zone) -> DueStatus.Overdue
                         next.toLocalDateTime(reminders.zone).date == today -> DueStatus.DueToday
                         else -> DueStatus.Upcoming
                     },

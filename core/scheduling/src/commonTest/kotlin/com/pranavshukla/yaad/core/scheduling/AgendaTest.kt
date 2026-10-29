@@ -106,4 +106,15 @@ class AgendaTest {
         assertEquals(Instant.parse("2026-10-29T03:30:00Z"), Agenda.nextDue(daily, done, now, zone))
         assertNull(Agenda.nextDue(reminder("old", LocalDateTime(2026, 1, 1, 9, 0)), listOf(Occurrence(ReminderId("old"), Instant.parse("2026-01-01T03:30:00Z"), OccurrenceStatus.Done(now))), now, zone))
     }
+
+    @Test
+    fun anAllDayItemIsNotOverdueOnItsDay() {
+        // Found on the emulator: the Money list called today's all-day bill overdue.
+        val bill = reminder("bill", LocalDateTime(2026, 10, 28, 0, 0), allDay = true)
+        val due = Instant.parse("2026-10-27T18:30:00Z") // midnight IST on 28 October
+        assertEquals(false, Agenda.isOverdue(bill, due, now, zone))
+        assertEquals(true, Agenda.isOverdue(bill, due, Instant.parse("2026-10-28T18:30:00Z"), zone))
+        val call = reminder("call", LocalDateTime(2026, 10, 28, 14, 0))
+        assertEquals(true, Agenda.isOverdue(call, Instant.parse("2026-10-28T08:30:00Z"), now, zone))
+    }
 }

@@ -54,7 +54,7 @@ object Agenda {
             for (due in reminder.schedule.occurrencesBetween(from, until, zone)) {
                 val date = due.toLocalDateTime(zone).date
                 val item = AgendaItem(reminder, due, statuses[reminder.id to due.toEpochMilliseconds()] ?: OccurrenceStatus.Pending, date)
-                val isPast = if (reminder.allDay) date < today else due < now
+                val isPast = isOverdue(reminder, due, now, zone)
                 when {
                     isPast && date < today -> if (!item.isHandled) missed += item
                     isPast -> if (item.isHandled) todays += item else missed += item
@@ -70,6 +70,13 @@ object Agenda {
             today = todays.sortedWith(order),
             upcoming = upcoming.sortedWith(order).groupBy { it.date },
         )
+    }
+
+    /** Whether an occurrence due at [due] is past: all-day items only once their day is over. */
+    fun isOverdue(reminder: Reminder, due: Instant, now: Instant, deviceZone: TimeZone): Boolean {
+        if (!reminder.allDay) return due < now
+        val zone = reminder.schedule.zoneOr(deviceZone)
+        return due.toLocalDateTime(zone).date < now.toLocalDateTime(zone).date
     }
 
     /** The earliest unhandled occurrence, overdue or not (within the last [overdueDays] days), or null if none is left. */
