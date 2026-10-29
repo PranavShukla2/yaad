@@ -35,6 +35,9 @@ fun LoansPane(
     contentPadding: PaddingValues = PaddingValues(16.dp()),
 ) {
     val state by model.state.collectAsState()
+    // "HDFC EMI", localised; the lender is filled in from the loan as saved.
+    val emiTitle = stringResource(Res.string.emi_title, LenderPlaceholder)
+    val titleFor = { lender: String -> emiTitle.replace(LenderPlaceholder, lender) }
     BoxWithConstraints(modifier) {
         val twoPane = WidthClass.of(maxWidth).isTwoPane
         BackHandler(enabled = !twoPane && pane != LoanPane.None) {
@@ -47,23 +50,21 @@ fun LoansPane(
                 when (pane) {
                     LoanPane.None -> EmptyState(stringResource(Res.string.select_loan), "")
                     is LoanPane.Detail -> state.loan(pane.id)?.let { view ->
-                        val title = stringResource(Res.string.emi_title, view.loan.lender)
                         LoanDetail(
                             view = view,
                             onEdit = { onPane(LoanPane.Editor(LoanForm.from(view.loan))) },
                             onDelete = { model.delete(view.loan); onPane(LoanPane.None) },
-                            onSave = { model.save(it, title) },
+                            onSave = { model.save(it, titleFor(it.lender)) },
                             onTogglePaid = { model.markPaid(view, it) },
                             onBack = if (twoPane) null else ({ onPane(LoanPane.None) }),
                         )
                     } ?: EmptyState(stringResource(Res.string.select_loan), "")
                     is LoanPane.Editor -> {
-                        val title = stringResource(Res.string.emi_title, pane.form.lender.trim())
                         LoanEditor(
                             initial = pane.form,
                             currency = currency,
                             onSave = { loan ->
-                                model.save(loan, title)
+                                model.save(loan, titleFor(loan.lender))
                                 onPane(LoanPane.Detail(loan.id))
                             },
                             onCancel = { onPane(if (pane.form.base != null) LoanPane.Detail(pane.form.id) else LoanPane.None) },
@@ -74,5 +75,7 @@ fun LoansPane(
         )
     }
 }
+
+private const val LenderPlaceholder = "{lender}"
 
 private fun Int.dp() = androidx.compose.ui.unit.Dp(toFloat())
