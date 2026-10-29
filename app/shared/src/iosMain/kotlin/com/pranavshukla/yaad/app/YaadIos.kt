@@ -67,13 +67,18 @@ object YaadIos {
     fun start(provisional: Boolean = false) {
         notifications.start(provisional)
         MainScope().launch {
+            var first = true
             preferences.settings().collect { settings ->
                 lockOn = settings.appLock
-                if (!lockOn) locked.value = false
+                if (!lockOn) {
+                    locked.value = false
+                } else if (first) {
+                    locked.value = true
+                    unlock()
+                }
+                first = false
             }
         }
-        lockOn = kotlinx.coroutines.runBlocking { preferences.settings().first().appLock }
-        locked.value = lockOn
     }
 
     /** The app came to the foreground: refill the window and recheck permission. */

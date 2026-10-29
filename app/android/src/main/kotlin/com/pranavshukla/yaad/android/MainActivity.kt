@@ -20,9 +20,7 @@ import com.pranavshukla.yaad.app.AlertAccess
 import com.pranavshukla.yaad.app.App
 import com.pranavshukla.yaad.app.BackupHost
 import com.pranavshukla.yaad.feature.settings.SettingsCapabilities
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /** A FragmentActivity because the biometric prompt needs one. */
 class MainActivity : FragmentActivity() {
@@ -64,10 +62,18 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val app = application as YaadApplication
+        // The lock follows the setting: locked at launch when it is on, and whenever it is turned off, unlocked.
         lifecycleScope.launch {
+            var first = true
             app.preferences.settings().collect { settings ->
                 lockOn = settings.appLock
-                if (!lockOn) locked.value = false
+                if (!lockOn) {
+                    locked.value = false
+                } else if (first) {
+                    locked.value = true
+                    unlock()
+                }
+                first = false
             }
         }
         setContent {
@@ -86,14 +92,9 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        val settings = runBlocking { (application as YaadApplication).preferences.settings().first() }
-        lockOn = settings.appLock
-        if (lockOn) {
-            locked.value = true
-            unlock()
-        }
+    override fun onRestart() {
+        super.onRestart()
+        if (lockOn && locked.value) unlock()
     }
 
     override fun onStop() {
