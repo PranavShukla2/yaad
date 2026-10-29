@@ -1,6 +1,7 @@
 /* Notification text. Keys are read by platform/notifications (IosAlerts.text). */
 "due_at" = "Due %@";
 "due_now" = "Due now, %@";
+"auto_pay_check" = "Auto-pay: check it went through, %@";
 "still_due" = "Still due, %@";
 "snoozed" = "Snoozed, due %@";
 "action_done" = "Done";

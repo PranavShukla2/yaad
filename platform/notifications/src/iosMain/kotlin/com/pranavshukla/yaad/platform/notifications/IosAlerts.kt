@@ -91,7 +91,11 @@ internal class IosAlerts : PlatformAlerts {
         val whenText = formatter.stringFromDate(alert.occurrenceDue.toNSDate())
         val template = when (alert.kind) {
             AlertKind.Early -> text("due_at", "Due %@")
-            AlertKind.Due -> text("due_now", "Due now, %@")
+            AlertKind.Due -> if (reminder.autoPay) {
+                text("auto_pay_check", "Auto-pay: check it went through, %@")
+            } else {
+                text("due_now", "Due now, %@")
+            }
             AlertKind.Nag -> text("still_due", "Still due, %@")
             AlertKind.Snoozed -> text("snoozed", "Snoozed, due %@")
         }
