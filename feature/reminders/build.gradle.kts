@@ -9,6 +9,7 @@ kotlin {
             api(projects.ui.designsystem)
             api(projects.core.scheduling)
             implementation(projects.core.finance)
+            api(projects.core.quickadd)
             api(projects.data)
             implementation(libs.compose.ui.backhandler)
         }

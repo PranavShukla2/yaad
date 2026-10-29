@@ -56,8 +56,14 @@ fun RemindersPane(
                 val open = { item: AgendaItem -> onPane(Pane.Detail(item.reminder.id)) }
                 val toggle = { item: AgendaItem -> if (item.isHandled) model.undo(item) else model.act(item, AlertAction.Done) }
                 when (tab) {
-                    AgendaTab.Today -> TodayList(state, open, toggle, contentPadding = contentPadding.plus16())
-                    AgendaTab.Upcoming -> UpcomingList(state, open, toggle, contentPadding = contentPadding.plus16())
+                    AgendaTab.Today -> androidx.compose.foundation.layout.Column {
+                        QuickAddBar(model, state, onEdit = { onPane(Pane.Editor(it)) })
+                        TodayList(state, open, toggle, contentPadding = contentPadding.plus16())
+                    }
+                    AgendaTab.Upcoming -> UpcomingScreen(
+                        state, open, onOpenReminder = { onPane(Pane.Detail(it.id)) }, onToggleDone = toggle,
+                        contentPadding = contentPadding.plus16(),
+                    )
                 }
             },
             detail = {

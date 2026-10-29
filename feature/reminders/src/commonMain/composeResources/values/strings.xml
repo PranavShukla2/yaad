@@ -155,4 +155,25 @@
     <string name="food_before">Before food</string>
     <string name="food_after">After food</string>
     <string name="turns">Turns %1$d</string>
+
+    <!-- Quick add, calendar, search -->
+    <string name="quick_add_hint">Type a reminder: rent 15000 on 5th every month</string>
+    <string name="quick_add">Add</string>
+    <string name="quick_edit">Edit</string>
+    <string name="understood">Understood as</string>
+    <string name="no_date">Today</string>
+    <string name="view_list">List</string>
+    <string name="view_calendar">Calendar</string>
+    <string name="view_search">Search</string>
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="nothing_this_day">Nothing on this day.</string>
+    <string name="search_hint">Search titles and notes</string>
+    <string name="no_results">No reminders match.</string>
+    <string name="show_archived">Archived</string>
+    <string name="items_on">%1$s, %2$d items</string>
+    <string-array name="months_long">
+        <item>January</item><item>February</item><item>March</item><item>April</item><item>May</item><item>June</item>
+        <item>July</item><item>August</item><item>September</item><item>October</item><item>November</item><item>December</item>
+    </string-array>
 </resources>

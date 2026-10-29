@@ -12,14 +12,15 @@ Yaad remembers the things that cost money or trouble when forgotten:
 
 Everything stays on the device unless you choose to back it up.
 
-**Status:** Phases 0–8 are done: the recurrence engine, the on-device database (with migrations and backup) and
+**Status:** Phases 0–9 are done: the recurrence engine, the on-device database (with migrations and backup) and
 reliable notifications on Android (exact alarms, Doze, reboot, time changes) and iPad (a rolling 64-notification
 window), with Done / Snooze / Skip, are in place and tested, and the reminder screens (Today, Upcoming, detail,
 editor; two panes on iPad) work, and loans show their exact EMI schedule with part-payments, rate changes and EMI
 reminders, and the Money tab sums up each month’s bills, cards, subscriptions, insurance and investments. Birthdays,
-medicines (nagging until taken), document expiry, warranties and appointments each have a one-tap template. Progress
-by phase is in [docs/PLAN.md § 10](docs/PLAN.md#10-progress); working rules for contributors and AI assistants are
-in [CLAUDE.md](CLAUDE.md).
+medicines (nagging until taken), document expiry, warranties and appointments each have a one-tap template, and
+reminders can be typed in a line ("rent 15000 on 5th every month", "kal shaam 7 baje call Ravi"), found on a
+calendar or searched. Progress by phase is in [docs/PLAN.md § 10](docs/PLAN.md#10-progress); working rules for
+contributors and AI assistants are in [CLAUDE.md](CLAUDE.md).
 
 ## Building
 

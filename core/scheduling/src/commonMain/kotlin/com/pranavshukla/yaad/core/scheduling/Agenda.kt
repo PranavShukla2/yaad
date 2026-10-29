@@ -76,6 +76,25 @@ object Agenda {
         )
     }
 
+    /** Every occurrence in a month, by day, for the calendar; exactly the recurrence engine's occurrences. */
+    fun month(
+        reminders: List<Reminder>,
+        history: List<Occurrence>,
+        year: Int,
+        month: Int,
+        now: Instant,
+        deviceZone: TimeZone,
+    ): Map<LocalDate, List<AgendaItem>> {
+        val statuses = history.associate { (it.reminderId to it.due.toEpochMilliseconds()) to it.status }
+        val first = LocalDate(year, month, 1)
+        return reminders.filter { !it.archived }.flatMap { reminder ->
+            val zone = reminder.schedule.zoneOr(deviceZone)
+            reminder.schedule.occurrencesBetween(first.atStartOfDayIn(zone), first.plus(1, DateTimeUnit.MONTH).atStartOfDayIn(zone), zone).map { due ->
+                AgendaItem(reminder, due, statuses[reminder.id to due.toEpochMilliseconds()] ?: OccurrenceStatus.Pending, due.toLocalDateTime(zone).date)
+            }
+        }.sortedWith(compareBy<AgendaItem>({ it.due }, { it.reminder.title })).groupBy { it.date }
+    }
+
     /** Whether an occurrence due at [due] is past: all-day items only once their day is over. */
     fun isOverdue(reminder: Reminder, due: Instant, now: Instant, deviceZone: TimeZone): Boolean {
         if (!reminder.allDay) return due < now
