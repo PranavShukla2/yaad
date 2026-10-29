@@ -2,6 +2,7 @@ package com.pranavshukla.yaad.app
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.pranavshukla.yaad.data.LoanStore
+import com.pranavshukla.yaad.data.PreferenceStore
 import com.pranavshukla.yaad.data.ReminderStore
 import com.pranavshukla.yaad.feature.loans.LoansModel
 import com.pranavshukla.yaad.data.db.YaadDatabase
@@ -19,4 +20,5 @@ internal class TestApp(onChanged: (ReminderStore) -> Unit = {}) {
     val store = ReminderStore(driver)
     val reminders = RemindersModel(store, scope, onChanged = { onChanged(store) })
     val loans = LoansModel(LoanStore(driver), store, scope, onChanged = { onChanged(store) })
+    val preferences = PreferenceStore(driver)
 }

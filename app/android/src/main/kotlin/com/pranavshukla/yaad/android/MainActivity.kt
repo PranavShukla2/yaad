@@ -28,7 +28,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val app = application as YaadApplication
-        setContent { App(app.reminders, app.loans, access.value, ::fixAccess) }
+        setContent {
+            App(
+                app.reminders, app.loans, app.preferences, access.value, ::fixAccess,
+                onSettingsChanged = { app.notifications.requestSync() },
+            )
+        }
         if (savedInstanceState == null && needsNotificationPermission()) {
             askForNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
         }

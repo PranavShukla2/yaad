@@ -12,7 +12,10 @@ import platform.UIKit.UIViewController
 @Suppress("FunctionName", "unused")
 fun MainViewController(): UIViewController = ComposeUIViewController {
     val allowed by YaadIos.notifications.notificationsAllowed.collectAsState()
-    App(YaadIos.reminders, YaadIos.loans, AlertAccess(notifications = allowed), ::openSettings)
+    App(
+        YaadIos.reminders, YaadIos.loans, YaadIos.preferences, AlertAccess(notifications = allowed), ::openSettings,
+        onSettingsChanged = { YaadIos.notifications.requestSync() },
+    )
 }
 
 /** iOS cannot ask twice: send the user to Yaad's page in Settings. */

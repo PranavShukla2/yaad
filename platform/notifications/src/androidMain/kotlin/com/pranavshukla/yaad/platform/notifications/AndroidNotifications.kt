@@ -9,6 +9,7 @@ import com.pranavshukla.yaad.core.model.ReminderId
 import com.pranavshukla.yaad.core.scheduling.Alert
 import com.pranavshukla.yaad.core.scheduling.AlertKind
 import com.pranavshukla.yaad.core.scheduling.PlanSettings
+import com.pranavshukla.yaad.data.PreferenceStore
 import com.pranavshukla.yaad.data.ReminderStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,9 +35,10 @@ interface YaadHost {
 class AndroidNotifications(
     context: Context,
     private val store: ReminderStore,
+    private val preferences: PreferenceStore,
     private val clock: Clock = Clock.System,
 ) {
-    private val settings = PlanSettings(limit = 400) // Android allows each app 500 alarms.
+    private var settings = PlanSettings(limit = 400) // Android allows each app 500 alarms.
     private val alerts = AndroidAlerts(context)
     private val notifier = Notifier(context)
     private val sync = NotificationSync(alerts, settings)
@@ -58,6 +60,10 @@ class AndroidNotifications(
         val history = store.allOccurrences().first()
         val zone = TimeZone.currentSystemDefault()
         val now = clock.now()
+        val app = preferences.settings().first()
+        settings = app.planSettings(settings)
+        sync.settings = settings
+        notifier.hideAmounts = app.hideAmounts
         if (fromScratch) {
             val missed = sync.resyncFromScratch(reminders, history, now, zone, alerts.lastSync())
             val byId = reminders.associateBy { it.id }

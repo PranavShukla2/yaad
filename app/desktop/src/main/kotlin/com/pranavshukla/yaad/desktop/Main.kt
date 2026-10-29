@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import com.pranavshukla.yaad.app.App
 import com.pranavshukla.yaad.data.DatabaseFactory
 import com.pranavshukla.yaad.data.LoanStore
+import com.pranavshukla.yaad.data.PreferenceStore
 import com.pranavshukla.yaad.data.ReminderStore
 import com.pranavshukla.yaad.feature.loans.LoansModel
 import com.pranavshukla.yaad.feature.reminders.RemindersModel
@@ -23,12 +24,13 @@ fun main() = application {
     val store = remember { ReminderStore(driver) }
     val reminders = remember { RemindersModel(store, scope) }
     val loans = remember { LoansModel(LoanStore(driver), store, scope) }
+    val preferences = remember { PreferenceStore(driver) }
     Window(
         onCloseRequest = ::exitApplication,
         state = rememberWindowState(size = DpSize(820.dp, 1000.dp)),
         title = "Yaad",
     ) {
         window.minimumSize = java.awt.Dimension(360, 600)
-        App(reminders, loans)
+        App(reminders, loans, preferences)
     }
 }

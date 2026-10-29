@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import com.pranavshukla.yaad.data.DatabaseFactory
 import com.pranavshukla.yaad.data.LoanStore
+import com.pranavshukla.yaad.data.PreferenceStore
 import com.pranavshukla.yaad.feature.loans.LoansModel
 import com.pranavshukla.yaad.feature.reminders.RemindersModel
 import com.pranavshukla.yaad.data.ReminderStore
@@ -16,7 +17,9 @@ import com.pranavshukla.yaad.platform.notifications.YaadHost
 class YaadApplication : Application(), YaadHost {
     val store by lazy { ReminderStore(driver) }
 
-    override val notifications by lazy { AndroidNotifications(this, store) }
+    val preferences by lazy { PreferenceStore(driver) }
+
+    override val notifications by lazy { AndroidNotifications(this, store, preferences) }
 
     private val driver by lazy { DatabaseFactory(this).driver() }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)

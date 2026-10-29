@@ -7,6 +7,7 @@ import com.pranavshukla.yaad.core.model.ReminderId
 import com.pranavshukla.yaad.core.model.Schedule
 import com.pranavshukla.yaad.data.DatabaseFactory
 import com.pranavshukla.yaad.data.LoanStore
+import com.pranavshukla.yaad.data.PreferenceStore
 import com.pranavshukla.yaad.data.ReminderStore
 import com.pranavshukla.yaad.feature.loans.LoansModel
 import com.pranavshukla.yaad.feature.reminders.RemindersModel
@@ -29,7 +30,8 @@ import kotlin.time.Duration.Companion.seconds
 object YaadIos {
     private val driver by lazy { DatabaseFactory().driver() }
     internal val store by lazy { ReminderStore(driver) }
-    val notifications by lazy { IosNotifications(store) }
+    internal val preferences by lazy { PreferenceStore(driver) }
+    val notifications by lazy { IosNotifications(store, preferences) }
 
     /** The reminder screens' state; every change re-plans the notifications. */
     internal val reminders by lazy { RemindersModel(store, MainScope(), onChanged = { notifications.requestSync() }) }

@@ -6,6 +6,7 @@ import com.pranavshukla.yaad.core.model.ReminderId
 import com.pranavshukla.yaad.core.scheduling.Alert
 import com.pranavshukla.yaad.core.scheduling.AlertKind
 import com.pranavshukla.yaad.core.scheduling.PlanSettings
+import com.pranavshukla.yaad.data.PreferenceStore
 import com.pranavshukla.yaad.data.ReminderStore
 import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.coroutines.CoroutineScope
@@ -50,7 +51,11 @@ import kotlin.time.Instant
  * the app opens, on background refresh and after every change), Done / Snooze / Skip actions, and re-planning when
  * the clock or time zone changes.
  */
-class IosNotifications(private val store: ReminderStore, private val clock: Clock = Clock.System) {
+class IosNotifications(
+    private val store: ReminderStore,
+    private val preferences: PreferenceStore,
+    private val clock: Clock = Clock.System,
+) {
     private val center = UNUserNotificationCenter.currentNotificationCenter()
     private val alerts = IosAlerts()
     private val settings = PlanSettings()
@@ -100,6 +105,9 @@ class IosNotifications(private val store: ReminderStore, private val clock: Cloc
     suspend fun sync() = mutex.withLock {
         val reminders = store.reminders().first()
         val history = store.allOccurrences().first()
+        val app = preferences.settings().first()
+        sync.settings = app.planSettings(settings)
+        alerts.hideAmounts = app.hideAmounts
         sync.sync(reminders, history, clock.now(), TimeZone.currentSystemDefault())
     }
 
