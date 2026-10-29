@@ -40,6 +40,8 @@ import com.pranavshukla.yaad.core.scheduling.AgendaItem
 import com.pranavshukla.yaad.core.scheduling.AlertAction
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
+import com.pranavshukla.yaad.core.finance.MoneyFormat
+import com.pranavshukla.yaad.ui.designsystem.components.AmountText
 import com.pranavshukla.yaad.ui.designsystem.icons.YaadIcons
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -81,6 +83,8 @@ fun ReminderDetail(
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
+            reminder.amount?.let { AmountText(MoneyFormat.format(it), style = MaterialTheme.typography.titleLarge) }
+            if (reminder.autoPay) Text(stringResource(Res.string.auto_pay), style = MaterialTheme.typography.bodyMedium)
             Text(ruleText(reminder.schedule.rule, today), style = MaterialTheme.typography.bodyMedium)
             if (reminder.earlyAlerts.isNotEmpty()) {
                 Text(reminder.earlyAlerts.map { beforeText(it) }.joinToString(", "), style = MaterialTheme.typography.bodyMedium)

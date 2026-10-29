@@ -68,6 +68,7 @@
     <!-- Detail -->
     <string name="next_due">Next: %1$s</string>
     <string name="no_more">No more occurrences</string>
+    <string name="auto_pay">Paid automatically: Yaad asks you to check it went through</string>
     <string name="checklist">Checklist</string>
     <string name="history">History</string>
     <string name="no_history">Nothing done or skipped yet.</string>

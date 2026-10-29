@@ -8,6 +8,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.ui.designsystem)
             api(projects.core.scheduling)
+            implementation(projects.core.finance)
             api(projects.data)
             implementation(libs.compose.ui.backhandler)
         }
