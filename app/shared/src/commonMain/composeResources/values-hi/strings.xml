@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">याद</string>
+    <string name="tab_today">आज</string>
+    <string name="tab_upcoming">आगे</string>
+    <string name="tab_money">पैसा</string>
+    <string name="tab_settings">सेटिंग</string>
+    <string name="action_add">रिमाइंडर जोड़ें</string>
+    <string name="empty_today_title">आज कुछ बाकी नहीं</string>
+    <string name="empty_today_message">आज के रिमाइंडर, बिल और EMI यहाँ दिखेंगे।</string>
+    <string name="empty_upcoming_title">आगे कुछ नहीं</string>
+    <string name="empty_upcoming_message">अगले 30 दिन, दिन के हिसाब से।</string>
+    <string name="empty_money_title">अभी कोई पैसे का काम नहीं</string>
+    <string name="empty_money_message">लोन, बिल, कार्ड और सब्सक्रिप्शन दिखाएँगे कि क्या और कब देना है।</string>
+    <string name="empty_settings_title">सेटिंग</string>
+    <string name="empty_settings_message">डिफ़ॉल्ट समय, शांत घंटे और मुद्रा यहाँ होंगे।</string>
+    <string name="access_notifications_off">नोटिफ़िकेशन बंद हैं, इसलिए याद आपको याद नहीं दिला सकता।</string>
+    <string name="access_turn_on">चालू करें</string>
+    <string name="access_exact_denied">रिमाइंडर कुछ मिनट देर से आ सकते हैं। समय पर अलर्ट के लिए सटीक अलार्म की अनुमति दें।</string>
+    <string name="access_allow">अनुमति दें</string>
+    <string name="locked_title">याद लॉक है</string>
+    <string name="locked_message">उंगली, चेहरे या डिवाइस पिन से खोलें।</string>
+    <string name="unlock">खोलें</string>
+</resources>
