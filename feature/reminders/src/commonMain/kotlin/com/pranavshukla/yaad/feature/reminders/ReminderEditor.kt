@@ -48,6 +48,7 @@ import com.pranavshukla.yaad.core.scheduling.TimeLabel
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
 import com.pranavshukla.yaad.ui.designsystem.components.dateText
+import com.pranavshukla.yaad.ui.designsystem.LocalTwentyFourHour
 import com.pranavshukla.yaad.ui.designsystem.icons.YaadIcons
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -109,7 +110,7 @@ fun ReminderEditor(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 OutlinedButton(onClick = { picking = Picker.Date }) { Text(dayText(state.date, today)) }
                 if (!state.allDay) {
-                    OutlinedButton(onClick = { picking = Picker.Time }) { Text(TimeLabel.format(state.time, twentyFourHour = false)) }
+                    OutlinedButton(onClick = { picking = Picker.Time }) { Text(TimeLabel.format(state.time, twentyFourHour = LocalTwentyFourHour.current)) }
                 }
                 Row(Modifier.weight(1f), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(Res.string.field_all_day), Modifier.padding(end = 8.dp))
@@ -327,7 +328,7 @@ internal fun DateDialog(initial: LocalDate, onPick: (LocalDate) -> Unit, onDismi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TimeDialog(initial: LocalTime, onPick: (LocalTime) -> Unit, onDismiss: () -> Unit) {
-    val picker = rememberTimePickerState(initial.hour, initial.minute, is24Hour = false)
+    val picker = rememberTimePickerState(initial.hour, initial.minute, is24Hour = LocalTwentyFourHour.current)
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = { onPick(LocalTime(picker.hour, picker.minute)) }) { Text(stringResource(Res.string.ok)) } },

@@ -38,6 +38,7 @@ import com.pranavshukla.yaad.core.scheduling.TimeLabel
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
 import com.pranavshukla.yaad.ui.designsystem.components.dateText
+import com.pranavshukla.yaad.ui.designsystem.LocalTwentyFourHour
 import com.pranavshukla.yaad.ui.designsystem.icons.YaadIcons
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.StringResource
@@ -98,7 +99,7 @@ fun LifeEditor(initial: LifeForm, today: LocalDate, onSave: (LifeForm) -> Unit, 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { picking = Picker.Date }) { Text(stringResource(dateLabel, dateText(form.date, today))) }
                 if (form.kind == LifeKind.Appointment) {
-                    OutlinedButton(onClick = { picking = Picker.Time }) { Text(TimeLabel.format(form.time, twentyFourHour = false)) }
+                    OutlinedButton(onClick = { picking = Picker.Time }) { Text(TimeLabel.format(form.time, twentyFourHour = LocalTwentyFourHour.current)) }
                 }
             }
             if (form.kind == LifeKind.Warranty) {
@@ -112,7 +113,7 @@ fun LifeEditor(initial: LifeForm, today: LocalDate, onSave: (LifeForm) -> Unit, 
                         FilterChip(
                             selected = on,
                             onClick = { form = form.copy(doses = if (on) form.doses - dose else form.doses + dose) },
-                            label = { Text("${stringResource(doseLabel(dose))} · ${TimeLabel.format(dose.time, twentyFourHour = false)}") },
+                            label = { Text("${stringResource(doseLabel(dose))} · ${TimeLabel.format(dose.time, twentyFourHour = LocalTwentyFourHour.current)}") },
                         )
                     }
                 }
