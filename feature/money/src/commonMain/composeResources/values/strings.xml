@@ -5,6 +5,8 @@
     <string name="pending">Pending</string>
     <string name="emi_outgo">EMIs</string>
     <string name="coming_up">Largest coming up</string>
+    <string name="by_category">By category</string>
+    <string name="other_category">Other</string>
     <string name="loans">Loans</string>
     <string name="money_items">Bills, cards and more</string>
     <string name="empty_title">No money items yet</string>
