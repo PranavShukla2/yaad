@@ -37,13 +37,51 @@ object YaadIos {
     internal val reminders by lazy { RemindersModel(store, MainScope(), onChanged = { notifications.requestSync() }) }
     internal val loans by lazy { LoansModel(LoanStore(driver), store, MainScope(), onChanged = { notifications.requestSync() }) }
 
+    /** True while the app lock is on and Yaad has not been unlocked. */
+    internal val locked = kotlinx.coroutines.flow.MutableStateFlow(false)
+    private var lockOn = false
+
+    /** Whether the device can verify its owner (Face ID, Touch ID or passcode). */
+    internal fun canLock(): Boolean =
+        platform.LocalAuthentication.LAContext().canEvaluatePolicy(platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication, null)
+
+    /** The app went to the background: lock it if the app lock is on. */
+    fun onBackground() {
+        if (lockOn) locked.value = true
+    }
+
+    internal fun unlock() {
+        if (!canLock()) {
+            locked.value = false
+            return
+        }
+        platform.LocalAuthentication.LAContext().evaluatePolicy(
+            platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication,
+            localizedReason = "Unlock Yaad",
+        ) { success, _ -> if (success) MainScope().launch { locked.value = false } }
+    }
+
     /** At launch. [provisional] (debug only) skips the permission prompt, for automated simulator checks. */
-    fun start(provisional: Boolean = false) = notifications.start(provisional)
+    fun start(provisional: Boolean = false) {
+        notifications.start(provisional)
+        MainScope().launch {
+            preferences.settings().collect { settings ->
+                lockOn = settings.appLock
+                if (!lockOn) locked.value = false
+            }
+        }
+        lockOn = kotlinx.coroutines.runBlocking { preferences.settings().first().appLock }
+        locked.value = lockOn
+    }
 
     /** The app came to the foreground: refill the window and recheck permission. */
     fun onBecameActive() {
         notifications.refreshAuthorization()
         notifications.requestSync()
+        MainScope().launch {
+            lockOn = preferences.settings().first().appLock
+            if (lockOn && locked.value) unlock()
+        }
     }
 
     /** Background app refresh: refill the window, then call [done]. */

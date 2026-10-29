@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -22,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.datetime.toLocalDateTime
 import com.pranavshukla.yaad.app.resources.Res
 import com.pranavshukla.yaad.app.resources.action_add
+import com.pranavshukla.yaad.app.resources.locked_message
+import com.pranavshukla.yaad.app.resources.locked_title
+import com.pranavshukla.yaad.app.resources.unlock
 import com.pranavshukla.yaad.app.resources.empty_money_message
 import com.pranavshukla.yaad.app.resources.empty_money_title
 import com.pranavshukla.yaad.app.resources.empty_settings_message
@@ -91,6 +95,8 @@ fun App(
     onSettingsChanged: () -> Unit = {},
     onExport: () -> Unit = {},
     onRestore: () -> Unit = {},
+    locked: Boolean = false,
+    onUnlock: () -> Unit = {},
 ) {
     val settings by remember(preferences) { preferences.settings() }.collectAsState(AppSettings())
     val scope = rememberCoroutineScope()
@@ -101,6 +107,10 @@ fun App(
     }
     YaadTheme(darkTheme = dark) {
       CompositionLocalProvider(LocalTwentyFourHour provides settings.twentyFourHour, LocalFirstDayOfWeek provides settings.firstDayOfWeek) {
+        if (locked) {
+            LockScreen(onUnlock)
+            return@CompositionLocalProvider
+        }
         var selected by rememberSaveable { mutableIntStateOf(0) }
         var pane by remember { mutableStateOf<Pane>(Pane.None) }
         var moneyPane by remember { mutableStateOf<MoneyPaneState>(MoneyPaneState.None) }
@@ -198,5 +208,21 @@ fun App(
             }
         }
       }
+    }
+}
+
+/** Shown instead of everything else while the app lock is on and Yaad has not been unlocked. */
+@Composable
+private fun LockScreen(onUnlock: () -> Unit) {
+    androidx.compose.material3.Surface(Modifier.fillMaxSize()) {
+        Column(
+            Modifier.fillMaxSize().padding(32.dp),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp, androidx.compose.ui.Alignment.CenterVertically),
+            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+        ) {
+            androidx.compose.material3.Text(stringResource(Res.string.locked_title), style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)
+            androidx.compose.material3.Text(stringResource(Res.string.locked_message))
+            androidx.compose.material3.Button(onClick = onUnlock) { androidx.compose.material3.Text(stringResource(Res.string.unlock)) }
+        }
     }
 }

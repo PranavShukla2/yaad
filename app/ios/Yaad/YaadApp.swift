@@ -25,7 +25,9 @@ struct YaadApp: App {
         .onChange(of: scenePhase) { phase in
             switch phase {
             case .active: YaadIos.shared.onBecameActive()
-            case .background: BackgroundRefresh.schedule()
+            case .background:
+                YaadIos.shared.onBackground()
+                BackgroundRefresh.schedule()
             default: break
             }
         }

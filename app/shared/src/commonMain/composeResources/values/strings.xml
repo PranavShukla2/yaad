@@ -17,4 +17,7 @@
     <string name="access_turn_on">Turn on</string>
     <string name="access_exact_denied">Reminders may arrive a few minutes late. Allow exact alarms for on-time alerts.</string>
     <string name="access_allow">Allow</string>
+    <string name="locked_title">Yaad is locked</string>
+    <string name="locked_message">Unlock with your fingerprint, face or device PIN.</string>
+    <string name="unlock">Unlock</string>
 </resources>

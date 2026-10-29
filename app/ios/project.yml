@@ -41,6 +41,7 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         UIRequiresFullScreen: false
+        NSFaceIDUsageDescription: Yaad uses Face ID to unlock when you turn on the app lock.
         # Background app refresh refills the 64-notification window (see BackgroundRefresh in YaadApp.swift).
         UIBackgroundModes: [fetch]
         BGTaskSchedulerPermittedIdentifiers: [com.pranavshukla.yaad.refresh]
