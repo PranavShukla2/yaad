@@ -9,6 +9,7 @@ import com.pranavshukla.yaad.core.scheduling.DayLabel
 import com.pranavshukla.yaad.core.scheduling.TimeLabel
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
+import com.pranavshukla.yaad.ui.designsystem.components.dateText
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -25,16 +26,6 @@ import kotlin.time.Instant
 @Composable
 internal fun weekdayName(day: DayOfWeek, short: Boolean = false): String =
     stringArrayResource(if (short) Res.array.weekdays_short else Res.array.weekdays)[day.isoDayNumber - 1]
-
-@Composable
-internal fun dateText(date: LocalDate, today: LocalDate): String {
-    val month = stringArrayResource(Res.array.months_short)[date.month.number - 1]
-    return if (date.year == today.year) {
-        stringResource(Res.string.date_day_month, date.day, month)
-    } else {
-        stringResource(Res.string.date_day_month_year, date.day, month, date.year)
-    }
-}
 
 @Composable
 internal fun dayText(date: LocalDate, today: LocalDate): String = when (val label = DayLabel.of(date, today)) {

@@ -6,7 +6,9 @@ import com.pranavshukla.yaad.core.model.Reminder
 import com.pranavshukla.yaad.core.model.ReminderId
 import com.pranavshukla.yaad.core.model.Schedule
 import com.pranavshukla.yaad.data.DatabaseFactory
+import com.pranavshukla.yaad.data.LoanStore
 import com.pranavshukla.yaad.data.ReminderStore
+import com.pranavshukla.yaad.feature.loans.LoansModel
 import com.pranavshukla.yaad.feature.reminders.RemindersModel
 import com.pranavshukla.yaad.platform.notifications.IosNotifications
 import kotlinx.coroutines.MainScope
@@ -25,11 +27,13 @@ import kotlin.time.Duration.Companion.seconds
 
 /** The iOS app's one database and notification scheduler, called from Swift (app/ios/Yaad/YaadApp.swift). */
 object YaadIos {
-    internal val store by lazy { ReminderStore(DatabaseFactory().driver()) }
+    private val driver by lazy { DatabaseFactory().driver() }
+    internal val store by lazy { ReminderStore(driver) }
     val notifications by lazy { IosNotifications(store) }
 
     /** The reminder screens' state; every change re-plans the notifications. */
     internal val reminders by lazy { RemindersModel(store, MainScope(), onChanged = { notifications.requestSync() }) }
+    internal val loans by lazy { LoansModel(LoanStore(driver), store, MainScope(), onChanged = { notifications.requestSync() }) }
 
     /** At launch. [provisional] (debug only) skips the permission prompt, for automated simulator checks. */
     fun start(provisional: Boolean = false) = notifications.start(provisional)

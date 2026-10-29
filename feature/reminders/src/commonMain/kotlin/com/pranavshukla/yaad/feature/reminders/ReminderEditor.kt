@@ -47,6 +47,7 @@ import com.pranavshukla.yaad.core.model.Priority
 import com.pranavshukla.yaad.core.scheduling.TimeLabel
 import com.pranavshukla.yaad.feature.reminders.resources.Res
 import com.pranavshukla.yaad.feature.reminders.resources.*
+import com.pranavshukla.yaad.ui.designsystem.components.dateText
 import com.pranavshukla.yaad.ui.designsystem.icons.YaadIcons
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate

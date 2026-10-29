@@ -13,6 +13,7 @@ kotlinx-datetime = "0.8.0"
 kotlinx-serialization = "1.12.0"
 foojay = "1.0.0"
 sqldelight = "2.4.1"
+bignum = "0.3.10"
 
 # Android SDK levels and the JDK, read by the build-logic convention plugins
 android-compileSdk = "37"
@@ -45,6 +46,7 @@ androidx-core = { module = "androidx.core:core", version.ref = "androidx-core" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-core-splashscreen" }
 
 # KotlinX
+bignum = { module = "com.ionspin.kotlin:bignum", version.ref = "bignum" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }

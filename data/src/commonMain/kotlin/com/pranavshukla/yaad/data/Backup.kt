@@ -3,6 +3,7 @@ package com.pranavshukla.yaad.data
 import app.cash.sqldelight.db.SqlDriver
 import com.pranavshukla.yaad.data.db.Category
 import com.pranavshukla.yaad.data.db.Checklist_item
+import com.pranavshukla.yaad.data.db.Loan_event
 import com.pranavshukla.yaad.data.db.Occurrence
 import com.pranavshukla.yaad.data.db.Reminder
 import com.pranavshukla.yaad.data.db.YaadDatabase
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.time.Clock
+import com.pranavshukla.yaad.data.db.Loan as LoanRow
 
 class BackupException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
@@ -18,7 +20,9 @@ class BackupException(message: String, cause: Throwable? = null) : Exception(mes
  * before anything is written, so a bad file changes nothing. Encryption is added in Phase 10.
  */
 class Backup(driver: SqlDriver, private val clock: Clock = Clock.System) {
-    private val q = YaadDatabase(driver).yaadQueries
+    private val database = YaadDatabase(driver)
+    private val q = database.yaadQueries
+    private val loans = database.loanQueries
 
     fun export(): String = json.encodeToString(
         BackupFile.serializer(),
@@ -29,6 +33,8 @@ class Backup(driver: SqlDriver, private val clock: Clock = Clock.System) {
             occurrences = q.selectAllOccurrences().executeAsList().map { it.toDto() },
             categories = q.selectCategories().executeAsList().map { it.toDto() },
             settings = q.selectSettings().executeAsList().associate { it.key to it.value_ },
+            loans = loans.selectLoans().executeAsList().map { it.toDto() },
+            loanEvents = loans.selectAllLoanEvents().executeAsList().map { it.toDto() },
         ),
     )
 
@@ -67,22 +73,28 @@ class Backup(driver: SqlDriver, private val clock: Clock = Clock.System) {
         occurrences: List<Occurrence>,
     ) {
         q.transaction {
+            loans.deleteAllLoans()
             q.deleteAll()
             reminders.forEach(q::insertReminder)
             file.checklist.forEach { q.insertChecklistItem(it.toRow()) }
             occurrences.forEach(q::insertOccurrence)
             file.categories.forEach { q.insertCategory(it.toRow()) }
             file.settings.forEach { (key, value) -> q.putSetting(key, value) }
+            file.loans.forEach { loans.insertLoan(it.toRow()) }
+            file.loanEvents.forEach { loans.insertLoanEvent(it.toRow()) }
         }
     }
 
     private companion object {
         const val Format = "yaad-backup"
-        const val Version = 1
+        const val Version = 2
         val json = Json { encodeDefaults = true }
     }
 
-    /** Version 1 of the file: the database rows of schema version 1 (see Yaad.sq), with camelCase names. */
+    /**
+     * The database rows (see Yaad.sq and Loan.sq) with camelCase names. Version 2 added loans; a version 1 file reads
+     * as one without them.
+     */
     @Serializable
     private data class BackupFile(
         val format: String = Format,
@@ -93,6 +105,8 @@ class Backup(driver: SqlDriver, private val clock: Clock = Clock.System) {
         val occurrences: List<OccurrenceDto> = emptyList(),
         val categories: List<CategoryDto> = emptyList(),
         val settings: Map<String, String> = emptyMap(),
+        val loans: List<LoanDto> = emptyList(),
+        val loanEvents: List<LoanEventDto> = emptyList(),
     )
 }
 
@@ -139,3 +153,28 @@ private data class CategoryDto(val id: String, val name: String, val color: Long
 }
 
 private fun Category.toDto() = CategoryDto(id, name, color)
+
+@Serializable
+private data class LoanDto(
+    val id: String, val lender: String, val kind: String, val principalMinor: Long, val currency: String,
+    val minorDigits: Long, val rateThousandths: Long, val tenureMonths: Long, val firstEmiDate: String,
+    val emiMinor: Long?, val updatedAt: Long,
+) {
+    fun toRow() = LoanRow(
+        id, lender, kind, principalMinor, currency, minorDigits, rateThousandths, tenureMonths, firstEmiDate, emiMinor, updatedAt,
+    )
+}
+
+private fun LoanRow.toDto() = LoanDto(
+    id, lender, kind, principal_minor, currency, minor_digits, rate_thousandths, tenure_months, first_emi_date, emi_minor, updated_at,
+)
+
+@Serializable
+private data class LoanEventDto(
+    val loanId: String, val position: Long, val afterInstalment: Long, val kind: String, val amountMinor: Long?,
+    val rateThousandths: Long?,
+) {
+    fun toRow() = Loan_event(loanId, position, afterInstalment, kind, amountMinor, rateThousandths)
+}
+
+private fun Loan_event.toDto() = LoanEventDto(loan_id, position, after_instalment, kind, amount_minor, rate_thousandths)
