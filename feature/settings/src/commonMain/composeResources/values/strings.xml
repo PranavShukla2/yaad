@@ -30,4 +30,15 @@
     <string name="sunday">Sunday</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="backup_password_title">Password for this backup</string>
+    <string name="backup_password_note">You will need it to restore. Yaad cannot recover a forgotten password.</string>
+    <string name="restore_password_title">Password of this backup</string>
+    <string name="password">Password</string>
+    <string name="password_again">Password again</string>
+    <string name="password_rules">At least 8 characters, typed the same twice.</string>
+    <string name="working">Working…</string>
+    <string name="backup_saved">Backup ready to save.</string>
+    <string name="restored">Backup restored.</string>
+    <string name="restore_failed">Could not restore: %1$s</string>
+    <string name="restore_warning">Restoring replaces everything in Yaad on this device.</string>
 </resources>

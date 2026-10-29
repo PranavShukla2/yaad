@@ -31,6 +31,7 @@ object YaadIos {
     private val driver by lazy { DatabaseFactory().driver() }
     internal val store by lazy { ReminderStore(driver) }
     internal val preferences by lazy { PreferenceStore(driver) }
+    internal val backup by lazy { com.pranavshukla.yaad.data.Backup(driver) }
     val notifications by lazy { IosNotifications(store, preferences) }
 
     /** The reminder screens' state; every change re-plans the notifications. */
@@ -42,6 +43,7 @@ object YaadIos {
     private var lockOn = false
 
     /** Whether the device can verify its owner (Face ID, Touch ID or passcode). */
+    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
     internal fun canLock(): Boolean =
         platform.LocalAuthentication.LAContext().canEvaluatePolicy(platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication, null)
 

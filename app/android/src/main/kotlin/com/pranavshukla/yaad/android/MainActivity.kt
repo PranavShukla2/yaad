@@ -18,6 +18,7 @@ import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.pranavshukla.yaad.app.AlertAccess
 import com.pranavshukla.yaad.app.App
+import com.pranavshukla.yaad.app.BackupHost
 import com.pranavshukla.yaad.feature.settings.SettingsCapabilities
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -32,6 +33,30 @@ class MainActivity : FragmentActivity() {
 
     private val askForNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         refreshAccess()
+    }
+
+    // Backups go through the system's own save and open dialogs, so Yaad needs no storage permission.
+    private var pendingBackup: String? = null
+    private var onBackupOpened: ((String) -> Unit)? = null
+    private val saveBackup = registerForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+        val content = pendingBackup
+        pendingBackup = null
+        if (uri != null && content != null) contentResolver.openOutputStream(uri)?.use { it.write(content.encodeToByteArray()) }
+    }
+    private val openBackup = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val text = uri?.let { contentResolver.openInputStream(it)?.use { input -> input.readBytes().decodeToString() } }
+        if (text != null) onBackupOpened?.invoke(text)
+    }
+    private val backupHost = object : BackupHost {
+        override fun save(fileName: String, content: String) {
+            pendingBackup = content
+            saveBackup.launch(fileName)
+        }
+
+        override fun open(onOpened: (String) -> Unit) {
+            onBackupOpened = onOpened
+            openBackup.launch(arrayOf("*/*"))
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +75,8 @@ class MainActivity : FragmentActivity() {
                 app.reminders, app.loans, app.preferences, access.value, ::fixAccess,
                 capabilities = SettingsCapabilities(canLock = canLock()),
                 onSettingsChanged = { app.notifications.requestSync() },
+                backup = app.backup,
+                backupHost = backupHost,
                 locked = locked.value,
                 onUnlock = ::unlock,
             )

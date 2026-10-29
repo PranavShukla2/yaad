@@ -56,8 +56,13 @@ import com.pranavshukla.yaad.feature.reminders.RemindersPane
 import com.pranavshukla.yaad.core.model.AppSettings
 import com.pranavshukla.yaad.core.model.ThemeMode
 import com.pranavshukla.yaad.core.scheduling.TimeLabel
+import com.pranavshukla.yaad.data.Backup
+import com.pranavshukla.yaad.data.EncryptedBackup
 import com.pranavshukla.yaad.data.PreferenceStore
+import com.pranavshukla.yaad.feature.settings.BackupMessage
+import com.pranavshukla.yaad.feature.settings.BackupPasswordDialog
 import com.pranavshukla.yaad.feature.settings.SettingsCapabilities
+import com.pranavshukla.yaad.feature.settings.backupMessages
 import com.pranavshukla.yaad.feature.settings.SettingsScreen
 import com.pranavshukla.yaad.ui.designsystem.LocalFirstDayOfWeek
 import com.pranavshukla.yaad.ui.designsystem.LocalTwentyFourHour
@@ -93,13 +98,14 @@ fun App(
     onFixAlertAccess: () -> Unit = {},
     capabilities: SettingsCapabilities = SettingsCapabilities(),
     onSettingsChanged: () -> Unit = {},
-    onExport: () -> Unit = {},
-    onRestore: () -> Unit = {},
+    backup: Backup? = null,
+    backupHost: BackupHost? = null,
     locked: Boolean = false,
     onUnlock: () -> Unit = {},
 ) {
     val settings by remember(preferences) { preferences.settings() }.collectAsState(AppSettings())
     val scope = rememberCoroutineScope()
+    var backupStep by remember { mutableStateOf<BackupStep?>(null) }
     val dark = when (settings.theme) {
         ThemeMode.System -> isSystemInDarkTheme()
         ThemeMode.Light -> false
@@ -142,6 +148,24 @@ fun App(
                     null
                 },
             ) { padding ->
+                backupStep?.let { step ->
+                    val messages = backupMessages()
+                    when (step) {
+                        BackupStep.ExportPassword -> BackupPasswordDialog(confirm = true, onDismiss = { backupStep = null }, onDone = { password ->
+                            backupStep = null
+                            scope.launch { BackupFlow(backup!!, backupHost!!).export(password, reminders.state.value.now) }
+                        })
+                        is BackupStep.RestorePassword -> BackupPasswordDialog(confirm = false, onDismiss = { backupStep = null }, onDone = { password ->
+                            backupStep = null
+                            scope.launch {
+                                val result = BackupFlow(backup!!, backupHost!!).restore(step.text, password)
+                                backupStep = BackupStep.Message(result.exceptionOrNull()?.let { messages.failed.replace("%s", it.message ?: "") } ?: messages.restored)
+                                if (result.isSuccess) onSettingsChanged()
+                            }
+                        })
+                        is BackupStep.Message -> BackupMessage(step.text) { backupStep = null }
+                    }
+                }
                 if (choosingLife) {
                     val state = reminders.state.value
                     LifeChooser(
@@ -198,9 +222,9 @@ fun App(
                                 onSettingsChanged()
                             }
                         },
-                        capabilities = capabilities,
-                        onExport = onExport,
-                        onRestore = onRestore,
+                        capabilities = capabilities.copy(canBackUp = backup != null && backupHost != null),
+                        onExport = { backupStep = BackupStep.ExportPassword },
+                        onRestore = { backupHost?.open { text -> backupStep = BackupStep.RestorePassword(text) } },
                         formatTime = { TimeLabel.format(it, settings.twentyFourHour) },
                         contentPadding = padding,
                     )
@@ -226,3 +250,34 @@ private fun LockScreen(onUnlock: () -> Unit) {
         }
     }
 }
+
+/** Saving and opening backup files, which only the platform can do (a save dialog, a share sheet, a file picker). */
+interface BackupHost {
+    fun save(fileName: String, content: String)
+
+    /** Lets the user choose a backup file and calls [onOpened] with its text; nothing happens if they cancel. */
+    fun open(onOpened: (String) -> Unit)
+}
+
+private sealed interface BackupStep {
+    data object ExportPassword : BackupStep
+    data class RestorePassword(val text: String) : BackupStep
+    data class Message(val text: String) : BackupStep
+}
+
+/** Making and restoring encrypted backups, off the main thread; the platform saves and opens the file. */
+class BackupFlow(private val backup: Backup, private val host: BackupHost) {
+    suspend fun export(password: String, now: kotlin.time.Instant) {
+        val sealed = withContext(Dispatchers.Default) { EncryptedBackup.seal(backup.export(), password) }
+        host.save(backupFileName(now), sealed)
+    }
+
+    /** Replaces everything with the backup in [text]; a wrong password or damaged file changes nothing. */
+    suspend fun restore(text: String, password: String): Result<Unit> = withContext(Dispatchers.Default) {
+        runCatching { backup.import(EncryptedBackup.open(text, password)) }
+    }
+}
+
+/** "yaad-backup-2026-10-29.yaad". */
+internal fun backupFileName(now: kotlin.time.Instant): String =
+    "yaad-backup-${now.toString().take(10)}.yaad"

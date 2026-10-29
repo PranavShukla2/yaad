@@ -7,6 +7,8 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.runtime.remember
 import com.pranavshukla.yaad.app.App
+import com.pranavshukla.yaad.app.BackupHost
+import com.pranavshukla.yaad.data.Backup
 import com.pranavshukla.yaad.data.DatabaseFactory
 import com.pranavshukla.yaad.data.LoanStore
 import com.pranavshukla.yaad.data.PreferenceStore
@@ -31,6 +33,19 @@ fun main() = application {
         title = "Yaad",
     ) {
         window.minimumSize = java.awt.Dimension(360, 600)
-        App(reminders, loans, preferences)
+        App(reminders, loans, preferences, backup = remember { Backup(driver) }, backupHost = DesktopBackupHost)
+    }
+}
+
+/** Backups through the desktop's file choosers. */
+private object DesktopBackupHost : BackupHost {
+    override fun save(fileName: String, content: String) {
+        val chooser = javax.swing.JFileChooser().apply { selectedFile = java.io.File(fileName) }
+        if (chooser.showSaveDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) chooser.selectedFile.writeText(content)
+    }
+
+    override fun open(onOpened: (String) -> Unit) {
+        val chooser = javax.swing.JFileChooser()
+        if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) onOpened(chooser.selectedFile.readText())
     }
 }

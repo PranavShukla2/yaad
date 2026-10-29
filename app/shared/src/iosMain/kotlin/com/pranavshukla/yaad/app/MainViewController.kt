@@ -18,6 +18,8 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
         YaadIos.reminders, YaadIos.loans, YaadIos.preferences, AlertAccess(notifications = allowed), ::openSettings,
         capabilities = SettingsCapabilities(canLock = YaadIos.canLock()),
         onSettingsChanged = { YaadIos.notifications.requestSync() },
+        backup = YaadIos.backup,
+        backupHost = IosBackupHost,
         locked = locked,
         onUnlock = YaadIos::unlock,
     )

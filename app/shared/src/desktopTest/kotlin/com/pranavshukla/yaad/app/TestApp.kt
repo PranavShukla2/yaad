@@ -14,7 +14,7 @@ import java.util.Properties
 
 /** A fresh in-memory database with the app's models, as on first launch. */
 internal class TestApp(onChanged: (ReminderStore) -> Unit = {}) {
-    private val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY, Properties().apply { put("foreign_keys", "true") })
+    val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY, Properties().apply { put("foreign_keys", "true") })
         .also { YaadDatabase.Schema.create(it) }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     val store = ReminderStore(driver)

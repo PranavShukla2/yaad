@@ -4,6 +4,7 @@ import android.app.Application
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import com.pranavshukla.yaad.data.Backup
 import com.pranavshukla.yaad.data.DatabaseFactory
 import com.pranavshukla.yaad.data.LoanStore
 import com.pranavshukla.yaad.data.PreferenceStore
@@ -18,6 +19,7 @@ class YaadApplication : Application(), YaadHost {
     val store by lazy { ReminderStore(driver) }
 
     val preferences by lazy { PreferenceStore(driver) }
+    val backup by lazy { Backup(driver) }
 
     override val notifications by lazy { AndroidNotifications(this, store, preferences) }
 
