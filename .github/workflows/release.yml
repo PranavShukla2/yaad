@@ -1,0 +1,60 @@
+name: Release
+
+# Push a tag such as v0.10.0 to publish a signed Android APK on the repository's Releases page.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    name: Signed Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Every string has Hindi
+        run: python3 tools/i18n/check_hindi.py
+      - name: Tests and lint
+        run: ./gradlew check
+      - name: Decode the signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.YAAD_KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/yaad-release.jks"
+      - name: Build the signed APK
+        env:
+          YAAD_KEYSTORE: ${{ runner.temp }}/yaad-release.jks
+          YAAD_KEYSTORE_PASSWORD: ${{ secrets.YAAD_KEYSTORE_PASSWORD }}
+          YAAD_KEY_ALIAS: ${{ secrets.YAAD_KEY_ALIAS }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # 1.2.3 → 10203: always higher for a later version, so phones accept it as an update.
+          IFS=. read -r MAJOR MINOR PATCH <<< "$VERSION"
+          CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))
+          ./gradlew :app:android:assembleRelease -Pyaad.versionName="$VERSION" -Pyaad.versionCode="$CODE"
+          cp app/android/build/outputs/apk/release/android-release.apk "yaad-$VERSION.apk"
+          sha256sum "yaad-$VERSION.apk" > "yaad-$VERSION.apk.sha256"
+          rm "$RUNNER_TEMP/yaad-release.jks"
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          cat > notes.md <<NOTES
+          ## Install on Android
+          1. On your phone, download **yaad-$VERSION.apk** below.
+          2. Open it. If Android asks, allow your browser or Files app to install apps.
+          3. Later versions install over this one and keep your reminders.
+
+          Android 8.0 or newer. The APK is signed with Yaad's release key; \`yaad-$VERSION.apk.sha256\` lets you check the download.
+          iPhone and iPad builds need TestFlight and are not available here yet.
+          NOTES
+          gh release create "$GITHUB_REF_NAME" "yaad-$VERSION.apk" "yaad-$VERSION.apk.sha256" \
+            --title "Yaad $VERSION" --notes-file notes.md --generate-notes
