@@ -11,15 +11,30 @@ android {
         applicationId = "com.pranavshukla.yaad"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "0.1.0"
+        // CI passes these for releases (see .github/workflows/release.yml).
+        versionCode = (findProperty("yaad.versionCode") as String?)?.toInt() ?: 1
+        versionName = findProperty("yaad.versionName") as String? ?: "0.1.0"
+    }
+
+    // The release key never lives in the repository: CI decodes it from encrypted secrets into these variables.
+    val keystore = System.getenv("YAAD_KEYSTORE")
+    signingConfigs {
+        if (keystore != null) {
+            create("release") {
+                storeFile = file(keystore)
+                storePassword = System.getenv("YAAD_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("YAAD_KEY_ALIAS")
+                keyPassword = System.getenv("YAAD_KEYSTORE_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (keystore != null) signingConfig = signingConfigs.getByName("release")
         }
     }
 
