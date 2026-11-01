@@ -23,6 +23,12 @@ calendar or searched. Yaad can be locked, backed up to an encrypted file, and us
 [docs/PLAN.md § 10](docs/PLAN.md#10-progress); working rules for contributors and AI assistants are in
 [CLAUDE.md](CLAUDE.md).
 
+## Download
+
+**Android:** [download the latest APK](https://github.com/PranavShukla2/yaad/releases/latest) on your phone, open it,
+and allow installing when Android asks. New versions install over old ones and keep your reminders. iPhone and iPad
+builds will come through TestFlight.
+
 ## Building
 
 You need JDK 21, the Android SDK, and Xcode with an iPad simulator (macOS only).
@@ -35,3 +41,6 @@ You need JDK 21, the Android SDK, and Xcode with an iPad simulator (macOS only).
 | Desktop preview (development only) | `./gradlew :app:desktop:run` |
 
 The Xcode project is generated from `app/ios/project.yml`; after editing it, run `xcodegen generate` in `app/ios`.
+
+**Releases:** pushing a tag such as `v0.10.0` runs `.github/workflows/release.yml`, which tests, builds an APK signed
+with the release key (kept only in GitHub's encrypted secrets) and publishes it on the Releases page.
